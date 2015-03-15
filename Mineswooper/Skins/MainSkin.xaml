@@ -61,44 +61,44 @@
             </Setter.Value>
         </Setter>
         <Style.Triggers>
-            <DataTrigger Binding="{Binding Content}" Value="*">
+            <DataTrigger Binding="{Binding TileContent}" Value="*">
                 <Setter Property="Foreground" Value="Red" />
                 <Setter Property="FontWeight" Value="ExtraBold" />
                 <Setter Property="FontSize" Value="36" />
             </DataTrigger>
-            <DataTrigger Binding="{Binding Content}" Value="!">
+            <DataTrigger Binding="{Binding TileContent}" Value="!">
                 <Setter Property="Foreground" Value="Red" />
                 <Setter Property="Background" Value="Orange" />
                 <Setter Property="FontWeight" Value="ExtraBold" />
             </DataTrigger>
-            <DataTrigger Binding="{Binding Revealed}" Value="True">
+            <DataTrigger Binding="{Binding IsRevealed}" Value="True">
                 <Setter Property="Background" Value="DarkGray" />
             </DataTrigger>
-            <DataTrigger Binding="{Binding Content}" Value="1">
+            <DataTrigger Binding="{Binding TileContent}" Value="1">
                 <Setter Property="Foreground" Value="BlueViolet" />
             </DataTrigger>
-            <DataTrigger Binding="{Binding Content}" Value="2">
+            <DataTrigger Binding="{Binding TileContent}" Value="2">
                 <Setter Property="Foreground" Value="Blue" />
             </DataTrigger>
-            <DataTrigger Binding="{Binding Content}" Value="3">
+            <DataTrigger Binding="{Binding TileContent}" Value="3">
                 <Setter Property="Foreground" Value="Green" />
             </DataTrigger>
-            <DataTrigger Binding="{Binding Content}" Value="4">
+            <DataTrigger Binding="{Binding TileContent}" Value="4">
                 <Setter Property="Foreground" Value="YellowGreen" />
             </DataTrigger>
-            <DataTrigger Binding="{Binding Content}" Value="5">
+            <DataTrigger Binding="{Binding TileContent}" Value="5">
                 <Setter Property="Foreground" Value="Yellow" />
             </DataTrigger>
-            <DataTrigger Binding="{Binding Content}" Value="6">
+            <DataTrigger Binding="{Binding TileContent}" Value="6">
                 <Setter Property="Foreground" Value="Orange" />
             </DataTrigger>
-            <DataTrigger Binding="{Binding Content}" Value="7">
+            <DataTrigger Binding="{Binding TileContent}" Value="7">
                 <Setter Property="Foreground" Value="OrangeRed" />
             </DataTrigger>
-            <DataTrigger Binding="{Binding Content}" Value="8">
+            <DataTrigger Binding="{Binding TileContent}" Value="8">
                 <Setter Property="Foreground" Value="Red" />
             </DataTrigger>
-            <DataTrigger Binding="{Binding Content}" Value="9">
+            <DataTrigger Binding="{Binding TileContent}" Value="9">
                 <Setter Property="Foreground" Value="Black" />
             </DataTrigger>
         </Style.Triggers>

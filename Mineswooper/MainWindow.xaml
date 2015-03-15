@@ -49,14 +49,14 @@
             <ItemsControl x:Name="icGameField" ItemsSource="{Binding Field}" Width="{Binding FieldWidth}" Height="{Binding FieldHeight}" VerticalAlignment="Top" IsEnabled="{Binding IsUIEnabled}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <Button Content="{Binding Path=Content,UpdateSourceTrigger=PropertyChanged}" 
+                        <Button Content="{Binding Path=TileContent,UpdateSourceTrigger=PropertyChanged}" 
                             Width="{Binding DataContext.CellSize,ElementName=icGameField}"
                             Height="{Binding DataContext.CellSize,ElementName=icGameField}"
                             Style="{StaticResource MinesweeperGridButton}">
                             <Button.InputBindings>
-                                <MouseBinding MouseAction="LeftClick" Command="{Binding DataContext.GameTileClick,ElementName=icGameField}" CommandParameter="{Binding Path=Position}"/>
-                                <MouseBinding MouseAction="MiddleClick" Command="{Binding DataContext.GameTileMultiClick,ElementName=icGameField}" CommandParameter="{Binding Path=Position}"/>
-                                <MouseBinding MouseAction="RightClick" Command="{Binding DataContext.GameTileFlag,ElementName=icGameField}" CommandParameter="{Binding Path=Position}"/>
+                                <MouseBinding MouseAction="LeftClick" Command="{Binding DataContext.GameTileClick,ElementName=icGameField}" CommandParameter="{Binding Path=TilePosition}"/>
+                                <MouseBinding MouseAction="MiddleClick" Command="{Binding DataContext.GameTileMultiClick,ElementName=icGameField}" CommandParameter="{Binding Path=TilePosition}"/>
+                                <MouseBinding MouseAction="RightClick" Command="{Binding DataContext.GameTileSetFlag,ElementName=icGameField}" CommandParameter="{Binding Path=TilePosition}"/>
                             </Button.InputBindings>
                         </Button>
                     </DataTemplate>

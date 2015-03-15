@@ -1,28 +1,89 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 
 namespace Mineswooper.Model
 {
     public class GameTile : INotifyPropertyChanged
     {
-        private string content;
-        private bool revealed;
-        private bool flagged;
+        #region Privates
+        private string tileContent;
+        private bool isRevealed;
+        private bool isFlagged;
+        #endregion
+        #region Public properties
+        public Point TilePosition { get; set; }
+        public bool IsMined { get; set; }
+        public int AdjacentMines { get; set; }
+        public string TileContent
+        {
+            get { return tileContent; }
+            set
+            {
+                if (value != tileContent) tileContent = value;
+                NotifyPropertyChanged("TileContent");
+            }
+        }
+        public bool IsRevealed
+        {
+            get { return isRevealed; }
+            set
+            {
+                if (value != isRevealed) isRevealed = value;
+                NotifyPropertyChanged("IsRevealed");
+            }
+        }
+        public bool IsFlagged
+        {
+            get { return isFlagged; }
+            set
+            {
+                if (value != isFlagged) isFlagged = value;
+                NotifyPropertyChanged("IsFlagged");
+            }
+        }
+        #endregion
         public GameTile(int a, int b)
         {
-            Position = new Point(a, b);
-            Mined = false;
-            Revealed = false;// good for debugging
-            Flagged = false;
+            TilePosition = new Point(a, b);
+            IsMined = false;
+            IsRevealed = false;
+            IsFlagged = false;
             AdjacentMines = 0;
-            Content = "";
+            TileContent = "";
         }
+        #region Tile methods
+        public void UpdateTile()
+        {
+            if (IsRevealed)
+            {
+                if (IsMined) TileContent = "*";
+                else if (AdjacentMines != 0) TileContent = AdjacentMines.ToString();
+            }
+        }
+        public void RevealTile()
+        {
+            if (!IsRevealed)
+            {
+                IsRevealed = true;
+                UpdateTile();
+            }
+        }
+        public void ToggleFlag()
+        {
+            if (!IsFlagged)
+            {
+                TileContent = "!";
+                IsFlagged = true;
+            }
+            else
+            {
+                TileContent = "";
+                IsFlagged = false;
+            }
+        }
+        #endregion
         #region Property changed event
         public event PropertyChangedEventHandler PropertyChanged;
         private void NotifyPropertyChanged([CallerMemberName] String propertyName = "")
@@ -30,88 +91,6 @@ namespace Mineswooper.Model
             if (PropertyChanged != null)
             {
                 PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
-            }
-        }
-        #endregion
-
-        #region Public properties
-        public Point Position { get; set; }
-        public bool Mined { get; set; }
-        public int AdjacentMines { get; set; }
-        public string Content
-        {
-            get
-            {
-                return content;
-            }
-            set
-            {
-                if (value != content)
-                {
-                    content = value;
-                    NotifyPropertyChanged("Content");
-                }
-            }
-        }
-
-        public bool Revealed
-        {
-            get
-            {
-                return revealed;
-            }
-            set
-            {
-                if (value != revealed)
-                    revealed = value;
-                NotifyPropertyChanged("Revealed");
-            }
-        }
-        public bool Flagged
-        {
-            get { return flagged; }
-            set
-            {
-                if (value != flagged)
-                    flagged = value;
-                NotifyPropertyChanged("Flagged");
-            }
-        }
-
-        #endregion
-
-        #region Tile methods
-        public void Update()
-        {
-            if (Revealed)
-            {
-                
-                if (Mined)
-                    Content = "*";
-                else if (AdjacentMines != 0)
-                    Content = AdjacentMines.ToString();
-                //Content = Position.ToString();
-            }
-        }
-        public void Reveal()
-        {
-            if (!Revealed)
-            {
-                Revealed = true;
-                Update();
-            }
-        }
-        public void ToggleFlag()
-        {
-            if (!Flagged)
-            {
-                Content = "!";
-                Flagged = true;
-            }
-            else
-            {
-                Content = "";
-                Flagged = false;
             }
         }
         #endregion

@@ -4,37 +4,32 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
-using System.Timers;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Media;
 using System.Windows.Threading;
 
 namespace Mineswooper.Model
 {
     public class GameField : INotifyPropertyChanged
     {
+        enum AdjacentPositions : int { Prev = -1, Cur = 0, Next = 1 };
+        #region Privates
         private bool isInitialized;
-        private int mines;
-        private int presumedMines;
-        private int score;
+        private int minesAmout;
+        private int flagsCount;
+        private int currentScore;
         private DispatcherTimer timer;
+        #endregion
+        #region Public Properties
         public Point Size { get; set; }
-        public ObservableCollection<GameTile> Tiles;
+        public ObservableCollection<GameTile> Tiles { get; set; }
         public int Score
         {
-            get
-            {
-                return score;
-            }
+            get { return currentScore; }
             private set
             {
-                if (value != score)
+                if (value != currentScore)
                 {
-                    score = value;
+                    currentScore = value;
                     NotifyPropertyChanged("Score");
                 }
             }
@@ -42,202 +37,162 @@ namespace Mineswooper.Model
 
         public int PresumedMines
         {
-            get
-            {
-                return presumedMines;
-            }
+            get { return flagsCount; }
             private set
             {
-                if (value != presumedMines)
+                if (value != flagsCount)
                 {
-                    presumedMines = value;
+                    flagsCount = value;
                     NotifyPropertyChanged("PresumedMines");
                 }
             }
         }
-
-
+        #endregion
         #region Game field initializers
-        public GameField(int x, int y, int mines)
+        public GameField(int cols, int rows, int mines)
         {
-            Size = new Point(x, y);
-            this.mines = mines;
+            Size = new Point(cols, rows);
+            this.minesAmout = mines;
             timer = new DispatcherTimer();
             timer.Interval = new TimeSpan(0, 0, 1);
             timer.Tick += new EventHandler((s, e) => { Score++; });
-            Reset();
+            ResetField();
         }
-        public void Reset()
+        public void ResetField()
         {
-            if (Tiles != null)
-                Tiles.Clear();
-            else
-                Tiles = new ObservableCollection<GameTile>();
+            if (Tiles != null) Tiles.Clear();
+            else Tiles = new ObservableCollection<GameTile>();
             isInitialized = false;
-            for (int i = 1; i <= Size.Y; i++)
-                for (int j = 1; j <= Size.X; j++)
-                    Tiles.Add(new GameTile(i, j));
+            for (int row = 1; row <= Size.Y; row++)
+            {
+                for (int col = 1; col <= Size.X; col++) Tiles.Add(new GameTile(row, col));
+            }
             PresumedMines = 0;
             Score = 0;
             timer.Stop();
         }
-        private void Initialize(Point point)
+        private void InitializeField(Point selectedPoint)//places the mines and updates tiles after the first reveal attempt, then performs it
         {
-            int pool = this.mines;
+            int minesPool = this.minesAmout;
             Random rnd = new Random();
-            Point pos;
-
-            while (pool > 0)
+            Point randomPosition;
+            while (minesPool > 0)
             {
-                pos = new Point(rnd.Next(1, (int)Size.Y), rnd.Next(1, (int)Size.X));
-                GameTile tile = Tiles.FirstOrDefault(k => k.Position.X == pos.X && k.Position.Y == pos.Y);
-                if (tile != null && !tile.Mined)
+                randomPosition = new Point(rnd.Next(1, (int)Size.Y), rnd.Next(1, (int)Size.X));
+                GameTile selectedTile = Tiles.FirstOrDefault(t => t.TilePosition.X == randomPosition.X && t.TilePosition.Y == randomPosition.Y);
+                if (selectedTile != null && !selectedTile.IsMined)
                 {
-                    if (Math.Abs(pos.X - point.X) > 1 || Math.Abs(pos.Y - point.Y) > 1)//makes sure it's not already mined and is atleast one tile away from players click
+                    if (Math.Abs(randomPosition.X - selectedPoint.X) > 1 || Math.Abs(randomPosition.Y - selectedPoint.Y) > 1)//makes sure it's not already mined and is atleast one tile away from players click
                     {
-                        tile.Mined = true;
-                        pool--;
+                        selectedTile.IsMined = true;
+                        minesPool--;
                     }
                 }
             }
-            PresumedMines = Tiles.Count(x => x.Mined);
-            SetAdjacentMinesNumber();
-            Update();
-
-        }
-        private void SetAdjacentMinesNumber()
-        {
-            foreach (var tile in Tiles)
-            {
-                tile.AdjacentMines = Adjacent(tile.Position).FindAll(x => x.Mined).Count;
-            }
+            PresumedMines = Tiles.Count(t => t.IsMined);
+            foreach (var tile in Tiles) tile.AdjacentMines = Adjacent(tile.TilePosition).FindAll(t => t.IsMined).Count; //setting adjacent mines number
+            foreach (var tile in Tiles) tile.UpdateTile();//updating the game tiles
         }
         #endregion
 
         #region Game tile click handlers
-        public void GameTileClick(Point point)
+        public void GameTileRevealAttempt(Point selectedPoint)
         {
-
-            GameTile selected = Tiles.FirstOrDefault(x => x.Position.X == point.X && x.Position.Y == point.Y);
+            GameTile selectedTile = Tiles.FirstOrDefault(t => t.TilePosition.X == selectedPoint.X && t.TilePosition.Y == selectedPoint.Y);
             if (!isInitialized)
             {
-                Initialize(point);
+                InitializeField(selectedPoint);
                 isInitialized = true;
-                selected.Reveal();
+                selectedTile.RevealTile();
                 timer.Start();
             }
-            if (!selected.Flagged)
+            if (!selectedTile.IsFlagged)
             {
-                if (selected.AdjacentMines != 0 && !selected.Mined)
+                if (selectedTile.AdjacentMines != 0 && !selectedTile.IsMined)
                 {
-                    selected.Reveal();
-                    CheckVictory();
+                    selectedTile.RevealTile();
+                    CheckForVictory();
                 }
-                else if (selected.Mined)
-                    GameOver();
-                else
-                    CascadeReveal(point);
+                else if (selectedTile.IsMined) MinedTileRevealed();
+                else CascadeReveal(selectedPoint);
             }
-
         }
-        public void GameTileFlag(Point point)
+        public void GameTileSetFlag(Point selectedPoint)
         {
-            GameTile selected = Tiles.FirstOrDefault(x => x.Position.X == point.X && x.Position.Y == point.Y);
-            if (!selected.Revealed && isInitialized)
+            GameTile selectedTile = Tiles.FirstOrDefault(x => x.TilePosition.X == selectedPoint.X && x.TilePosition.Y == selectedPoint.Y);
+            if (!selectedTile.IsRevealed && isInitialized)
             {
-                if (selected.Flagged)
-                    PresumedMines++;
-                else
-                    PresumedMines--;
-                selected.ToggleFlag();
-                CheckVictory();
+                if (selectedTile.IsFlagged) PresumedMines++;
+                else PresumedMines--;
+
+                selectedTile.ToggleFlag();
+                CheckForVictory();
             }
-
-
         }
-        public void GameTileMultiClick(Point point)
+        public void GameTileCascadeRevealAttempt(Point selectedPoint)
         {
-            GameTile selected = Tiles.FirstOrDefault(x => x.Position.X == point.X && x.Position.Y == point.Y);
-            if (selected.Revealed && Adjacent(point).FindAll(x => x.Flagged).Count == selected.AdjacentMines)
-                foreach (var tile in Adjacent(point))
-                    if (!tile.Flagged)
+            GameTile selectedTile = Tiles.FirstOrDefault(t => t.TilePosition.X == selectedPoint.X && t.TilePosition.Y == selectedPoint.Y);
+            if (selectedTile.IsRevealed && Adjacent(selectedPoint).FindAll(t => t.IsFlagged).Count == selectedTile.AdjacentMines)
+            {
+                foreach (var tile in Adjacent(selectedPoint))
+                    if (!tile.IsFlagged)
                     {
-                        if (!tile.Mined)
+                        if (!tile.IsMined)
                         {
-                            if (tile.AdjacentMines == 0)
-                                CascadeReveal(tile.Position);
-                            else
-                                tile.Reveal();
+                            if (tile.AdjacentMines == 0) CascadeReveal(tile.TilePosition);
+                            else tile.RevealTile();
                         }
-                        else
-                            GameOver();
+                        else MinedTileRevealed();
                     }
+            }
         }
         #endregion
 
-        #region Auxiliary
-        public void Update()
+        #region GameTile Reveal Logic
+        public void CascadeReveal(Point selectedPoint)//performs a cascade tile reveal while checking for the defeat conditions
         {
-            foreach (GameTile tile in Tiles)
-                tile.Update();
-        }
-        public void RevealAdjacent(Point point)
-        {
-            foreach (var cur in Adjacent(point))
+            var emptyAdjacentTiles = new List<GameTile>();
+            foreach (var cur in Adjacent(selectedPoint))
             {
-                if (!cur.Mined)
-                    cur.Reveal();
-                else
-                    GameOver();
+                if (cur.AdjacentMines == 0 && !cur.IsRevealed) emptyAdjacentTiles.Add(cur);
             }
+            foreach (var cur in Adjacent(selectedPoint))
+            {
+                if (!cur.IsMined) cur.RevealTile();
+                else MinedTileRevealed();
+            }
+            foreach (var cur in emptyAdjacentTiles) CascadeReveal(cur.TilePosition);
         }
-        public void CascadeReveal(Point point)
-        {
-            var adj = new List<GameTile>();
-
-            foreach (var cur in Adjacent(point))
-                if (cur.AdjacentMines == 0 && !cur.Revealed)
-                    adj.Add(cur);
-            RevealAdjacent(point);
-            foreach (var cur in adj)
-                CascadeReveal(cur.Position);
-        }
-        public List<GameTile> Adjacent(Point point)
+        public List<GameTile> Adjacent(Point selectedPoint)//returns a list of tiles adjacent to the selected one, from 3 to 9 depending on the selected tile position
         {
             List<GameTile> adj = new List<GameTile>();
-            for (int i = -1; i < 2; i++)
-                for (int j = -1; j < 2; j++)
+            for (int row = (int)AdjacentPositions.Prev; row <= (int)AdjacentPositions.Next; row++)//adds the whole sqare 
+                for (int col = (int)AdjacentPositions.Prev; col <= (int)AdjacentPositions.Next; col++)
                 {
-                    var cur = Tiles.FirstOrDefault(x => x.Position.X == point.X + i && x.Position.Y == point.Y + j);
-                    if (cur != null)
-                        adj.Add(cur);
+                    var cur = Tiles.FirstOrDefault(x => x.TilePosition.X == selectedPoint.X + row && x.TilePosition.Y == selectedPoint.Y + col);
+                    if (cur != null) adj.Add(cur);
                 }
-
-            adj.Remove(adj.FirstOrDefault(x => x.Position.X == point.X && x.Position.Y == point.Y));
+            adj.Remove(adj.FirstOrDefault(x => x.TilePosition.X == selectedPoint.X && x.TilePosition.Y == selectedPoint.Y));//excludes the selected tile
             return adj;
         }
-        public void GameOver()
+        public void MinedTileRevealed()//defeat condition met
         {
-            foreach (var tile in Tiles)
-                tile.Reveal();
+            foreach (var tile in Tiles) tile.RevealTile();
             timer.Stop();
-            MessageBox.Show("BOOM");//!!
-            Reset();
+            MessageBox.Show("BOOM");
+            ResetField();
         }
-        public void CheckVictory()
+        public void CheckForVictory()
         {
-            //var tilesList = Tiles.ToList();
-            var minedTiles = Tiles.Count(x => x.Mined);
-            var flaggedTiles = Tiles.Count(x => x.Flagged && x.Mined);
-            var consealedTiles = Tiles.Count(x => !x.Revealed);
-
-            if (flaggedTiles == minedTiles || consealedTiles == minedTiles)
+            var minedTiles = Tiles.Count(x => x.IsMined);
+            var flaggedTiles = Tiles.Count(x => x.IsFlagged && x.IsMined);
+            var consealedTiles = Tiles.Count(x => !x.IsRevealed);
+            if (flaggedTiles == minedTiles || consealedTiles == minedTiles)//victory condition met
             {
-                foreach (var tile in Tiles)
-                    tile.Reveal();
+                foreach (var tile in Tiles) tile.RevealTile();
                 timer.Stop();
                 NotifyPropertyChanged("Victory");
-                Reset();
+                ResetField();
             }
         }
         #endregion
