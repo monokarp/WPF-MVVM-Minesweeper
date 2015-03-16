@@ -125,7 +125,6 @@ namespace Mineswooper.Model
             {
                 if (selectedTile.IsFlagged) PresumedMines++;
                 else PresumedMines--;
-
                 selectedTile.ToggleFlag();
                 CheckForVictory();
             }
@@ -171,10 +170,12 @@ namespace Mineswooper.Model
             for (int row = (int)AdjacentPositions.Prev; row <= (int)AdjacentPositions.Next; row++)//adds the whole sqare 
                 for (int col = (int)AdjacentPositions.Prev; col <= (int)AdjacentPositions.Next; col++)
                 {
-                    var cur = Tiles.FirstOrDefault(x => x.TilePosition.X == selectedPoint.X + row && x.TilePosition.Y == selectedPoint.Y + col);
-                    if (cur != null) adjacentTiles.Add(cur);
+                    if (col != 0 || row != 0)//excludes the central tile
+                    {
+                        var cur = Tiles.FirstOrDefault(x => x.TilePosition.X == selectedPoint.X + row && x.TilePosition.Y == selectedPoint.Y + col);
+                        if (cur != null) adjacentTiles.Add(cur);
+                    }
                 }
-            adjacentTiles.Remove(adjacentTiles.FirstOrDefault(x => x.TilePosition.X == selectedPoint.X && x.TilePosition.Y == selectedPoint.Y));//excludes the central tile
             return adjacentTiles;
         }
         public void MinedTileRevealed()//defeat condition met
