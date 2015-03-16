@@ -80,12 +80,8 @@
     <Compile Include="DAL\ScoreContext.cs" />
     <Compile Include="DAL\ScoreEntry.cs" />
     <Compile Include="DAL\ScoreInitializer.cs" />
-    <Compile Include="Design\DesignDataService.cs" />
-    <Compile Include="Model\DataItem.cs" />
-    <Compile Include="Model\DataService.cs" />
     <Compile Include="Model\GameField.cs" />
     <Compile Include="Model\GameTile.cs" />
-    <Compile Include="Model\IDataService.cs" />
     <Compile Include="ViewModel\MainViewModel.cs" />
     <Compile Include="ViewModel\ViewModelLocator.cs" />
     <Page Include="MainWindow.xaml">

@@ -7,6 +7,16 @@ namespace Mineswooper.Model
 {
     public class GameTile : INotifyPropertyChanged
     {
+        #region Property changed event
+        public event PropertyChangedEventHandler PropertyChanged;
+        private void NotifyPropertyChanged([CallerMemberName] String propertyName = "")
+        {
+            if (PropertyChanged != null)
+            {
+                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+            }
+        }
+        #endregion
         #region Privates
         private string tileContent;
         private bool isRevealed;
@@ -81,16 +91,6 @@ namespace Mineswooper.Model
             {
                 TileContent = "";
                 IsFlagged = false;
-            }
-        }
-        #endregion
-        #region Property changed event
-        public event PropertyChangedEventHandler PropertyChanged;
-        private void NotifyPropertyChanged([CallerMemberName] String propertyName = "")
-        {
-            if (PropertyChanged != null)
-            {
-                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
             }
         }
         #endregion

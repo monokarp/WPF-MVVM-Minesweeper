@@ -18,8 +18,7 @@ namespace Mineswooper.ViewModel
         private bool scorePopupOpen = false;
         private bool rulesPopupOpen = false;
         private bool victoryOpen = false;
-        private bool _UIEnabled = true;
-        private ScoreContext context = new ScoreContext();
+        private bool isUIEnabled = true;
         private string gameRules = "It's mineswoopr m8, reveal any tile to start the game.\nLeft click reveals a tile, right click flags a consealed tile, middle click reveals adjacent tiles in case all presumed adjacent mines are flagged. Each revealed tile shows the amount of mines in adjacent tiles.\nFlag every mine on the field or reveal every non-mined tile to win. \nTime elapsed is your final score.";
         private GameField field = new GameField(30, 16, 3);
         #endregion
@@ -28,10 +27,7 @@ namespace Mineswooper.ViewModel
             FieldWidth = cellSize * (int)field.Size.X;
             FieldHeight = cellSize * (int)field.Size.Y;
             PlayerScore = new ScoreEntry { Name = "Anonymous", Score = 0 };
-            scores = new ObservableCollection<ScoreEntry>((from e in context.ScoreEntries
-                                                           orderby e.Score
-                                                           select e).ToList());
-            ShutdownCommand = new RelayCommand(() => { context.Dispose(); Application.Current.Shutdown(); });
+            ShutdownCommand = new RelayCommand(() => { Application.Current.Shutdown(); });
             GameTileClick = new RelayCommand<Point>((p) => { field.GameTileRevealAttempt(p); });
             GameTileMultiClick = new RelayCommand<Point>((p) => { field.GameTileCascadeRevealAttempt(p); });
             GameTileSetFlag = new RelayCommand<Point>((p) => { field.GameTileSetFlag(p); });
@@ -42,14 +38,23 @@ namespace Mineswooper.ViewModel
             CloseScores = new RelayCommand(() => { ScoreOpen = false; IsUIEnabled = true; });
             SaveScore = new RelayCommand(() =>
             {
-                var index = scores.IndexOf(scores.First(s => s.Score >= PlayerScore.Score));
-                scores.Insert(index, PlayerScore);
-                context.ScoreEntries.Add(PlayerScore);
-                context.SaveChangesAsync();
+                scores.Add(new ScoreEntry { Name = PlayerScore.Name, Date = PlayerScore.Date, Score = PlayerScore.Score });
+                scores = new ObservableCollection<ScoreEntry>(scores.OrderBy(e => e.Score).ToList());
+                RaisePropertyChanged("ScoreEntries");
+                using (var dc = new ScoreContext())
+                {
+                    dc.ScoreEntries.Add(new ScoreEntry { Name = PlayerScore.Name, Date = PlayerScore.Date, Score = PlayerScore.Score });
+                    dc.SaveChanges();
+                }
                 VictoryOpen = false;
                 IsUIEnabled = true;
             });
             field.PropertyChanged += GameFieldEvent;
+            using (var dc = new ScoreContext())
+            {
+                scores = new ObservableCollection<ScoreEntry>(dc.ScoreEntries.Select(e => e).OrderBy(e => e.Score).ToList());
+            }
+
         }
         #region Relay commands
         public RelayCommand ShutdownCommand { get; set; }
@@ -76,11 +81,11 @@ namespace Mineswooper.ViewModel
         }
         public bool IsUIEnabled
         {
-            get { return _UIEnabled; }
+            get { return isUIEnabled; }
             set
             {
-                if (_UIEnabled == value) return;
-                _UIEnabled = value;
+                if (isUIEnabled == value) return;
+                isUIEnabled = value;
                 RaisePropertyChanged("IsUIEnabled");
             }
         }

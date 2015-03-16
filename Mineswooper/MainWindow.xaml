@@ -99,7 +99,7 @@
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                 <Label>
                     <ScrollViewer HorizontalAlignment="Center" VerticalAlignment="Top" MaxHeight="200" MaxWidth="400">
-                        <ItemsControl ItemsSource="{Binding ScoreEntries}" AlternationCount="2" ScrollViewer.CanContentScroll="True">
+                        <ItemsControl ItemsSource="{Binding ScoreEntries,UpdateSourceTrigger=PropertyChanged}" AlternationCount="2" ScrollViewer.CanContentScroll="True">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                     <StackPanel x:Name="Main" >

@@ -11,7 +11,7 @@
         <Setter Property="Height" Value="{Binding CellSize}"/>
         <Setter Property="BorderBrush" Value="Black"/>
         <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="Background" Value="Gray"/>
+        <Setter Property="Background" Value="White"/>
     </Style>
     <Style x:Key="MainMenu" TargetType="Menu">
         <Setter Property="HorizontalContentAlignment" Value="Left"/>
@@ -30,7 +30,7 @@
         <Setter Property="VerticalAlignment" Value="Top"/>
         <Setter Property="Foreground" Value="Red"/>
         <Setter Property="BorderBrush" Value="Black"/>
-        <Setter Property="Background" Value="Gray"/>
+        <Setter Property="Background" Value="White"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="FontFamily" Value="Impact"/>
     </Style>

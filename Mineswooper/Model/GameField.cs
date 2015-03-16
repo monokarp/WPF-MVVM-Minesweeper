@@ -11,14 +11,26 @@ namespace Mineswooper.Model
 {
     public class GameField : INotifyPropertyChanged
     {
-        enum AdjacentPositions : int { Prev = -1, Cur = 0, Next = 1 };
+        #region Property changed event
+        public event PropertyChangedEventHandler PropertyChanged;
+        private void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
+        {
+            if (PropertyChanged != null)
+            {
+                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+            }
+        }
+        #endregion
+
         #region Privates
+        private enum AdjacentPositions : int { Prev = -1, Cur = 0, Next = 1 };
         private bool isInitialized;
         private int minesAmout;
         private int flagsCount;
         private int currentScore;
         private DispatcherTimer timer;
         #endregion
+
         #region Public Properties
         public Point Size { get; set; }
         public ObservableCollection<GameTile> Tiles { get; set; }
@@ -47,6 +59,7 @@ namespace Mineswooper.Model
             }
         }
         #endregion
+
         #region Game field initializers
         public GameField(int cols, int rows, int mines)
         {
@@ -54,7 +67,7 @@ namespace Mineswooper.Model
             this.minesAmout = mines;
             timer = new DispatcherTimer();
             timer.Interval = new TimeSpan(0, 0, 1);
-            timer.Tick += new EventHandler((s, e) => { Score++; });
+            timer.Tick += (s, e) => Score++;
             ResetField();
         }
         public void ResetField()
@@ -72,10 +85,9 @@ namespace Mineswooper.Model
         }
         private void InitializeField(Point selectedPoint)//places the mines and updates tiles after the first reveal attempt, then performs it
         {
-            int minesPool = this.minesAmout;
             Random rnd = new Random();
             Point randomPosition;
-            while (minesPool > 0)
+            for (int count = 0; count < this.minesAmout; )
             {
                 randomPosition = new Point(rnd.Next(1, (int)Size.Y), rnd.Next(1, (int)Size.X));
                 var randomRow = Math.Abs(randomPosition.X - selectedPoint.X);
@@ -86,8 +98,8 @@ namespace Mineswooper.Model
                     if (randomRow > 1 || randomCol > 1)//empty and atleast one tile away from the initial
                     {
                         selectedTile.IsMined = true;
-                        minesPool--;
-                    }
+                        count++;
+                    } 
                 }
             }
             PresumedMines = Tiles.Count(t => t.IsMined);
@@ -166,13 +178,13 @@ namespace Mineswooper.Model
         }
         public List<GameTile> Adjacent(Point selectedPoint)//returns a list of tiles adjacent to the selected one, from 3 to 9 depending on the selected tile position
         {
-            List<GameTile> adjacentTiles = new List<GameTile>();
+            var adjacentTiles = new List<GameTile>();
             for (int row = (int)AdjacentPositions.Prev; row <= (int)AdjacentPositions.Next; row++)//adds the whole sqare 
                 for (int col = (int)AdjacentPositions.Prev; col <= (int)AdjacentPositions.Next; col++)
                 {
                     if (col != 0 || row != 0)//excludes the central tile
                     {
-                        var cur = Tiles.FirstOrDefault(x => x.TilePosition.X == selectedPoint.X + row && x.TilePosition.Y == selectedPoint.Y + col);
+                        GameTile cur = Tiles.FirstOrDefault(x => x.TilePosition.X == selectedPoint.X + row && x.TilePosition.Y == selectedPoint.Y + col);
                         if (cur != null) adjacentTiles.Add(cur);
                     }
                 }
@@ -186,26 +198,15 @@ namespace Mineswooper.Model
         }
         public void CheckForVictory()
         {
-            var minedTiles = Tiles.Count(x => x.IsMined);
-            var flaggedTiles = Tiles.Count(x => x.IsFlagged && x.IsMined);
-            var consealedTiles = Tiles.Count(x => !x.IsRevealed);
+            int minedTiles = Tiles.Count(x => x.IsMined);
+            int flaggedTiles = Tiles.Count(x => x.IsFlagged && x.IsMined);
+            int consealedTiles = Tiles.Count(x => !x.IsRevealed);
             if (flaggedTiles == minedTiles || consealedTiles == minedTiles)//victory condition met
             {
                 foreach (var tile in Tiles) tile.RevealTile();
                 timer.Stop();
                 NotifyPropertyChanged("Victory");
                 ResetField();
-            }
-        }
-        #endregion
-
-        #region Property changed event
-        public event PropertyChangedEventHandler PropertyChanged;
-        private void NotifyPropertyChanged([CallerMemberName] String propertyName = "")
-        {
-            if (PropertyChanged != null)
-            {
-                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
             }
         }
         #endregion
