@@ -5,6 +5,7 @@ using Mineswooper.Model;
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Linq;
 using System.Windows;
 
 namespace Mineswooper.ViewModel
@@ -20,14 +21,16 @@ namespace Mineswooper.ViewModel
         private bool _UIEnabled = true;
         private ScoreContext context = new ScoreContext();
         private string gameRules = "It's mineswoopr m8, reveal any tile to start the game.\nLeft click reveals a tile, right click flags a consealed tile, middle click reveals adjacent tiles in case all presumed adjacent mines are flagged. Each revealed tile shows the amount of mines in adjacent tiles.\nFlag every mine on the field or reveal every non-mined tile to win. \nTime elapsed is your final score.";
-        private GameField field = new GameField(30, 16, 99);
+        private GameField field = new GameField(30, 16, 3);
         #endregion
         public MainViewModel()
         {
             FieldWidth = cellSize * (int)field.Size.X;
             FieldHeight = cellSize * (int)field.Size.Y;
             PlayerScore = new ScoreEntry { Name = "Anonymous", Score = 0 };
-            scores = new ObservableCollection<ScoreEntry>(context.ScoreEntries);
+            scores = new ObservableCollection<ScoreEntry>((from e in context.ScoreEntries
+                                                           orderby e.Score
+                                                           select e).ToList());
             ShutdownCommand = new RelayCommand(() => { context.Dispose(); Application.Current.Shutdown(); });
             GameTileClick = new RelayCommand<Point>((p) => { field.GameTileRevealAttempt(p); });
             GameTileMultiClick = new RelayCommand<Point>((p) => { field.GameTileCascadeRevealAttempt(p); });
@@ -39,7 +42,8 @@ namespace Mineswooper.ViewModel
             CloseScores = new RelayCommand(() => { ScoreOpen = false; IsUIEnabled = true; });
             SaveScore = new RelayCommand(() =>
             {
-                scores.Add(PlayerScore);
+                var index = scores.IndexOf(scores.First(s => s.Score >= PlayerScore.Score));
+                scores.Insert(index, PlayerScore);
                 context.ScoreEntries.Add(PlayerScore);
                 context.SaveChangesAsync();
                 VictoryOpen = false;
