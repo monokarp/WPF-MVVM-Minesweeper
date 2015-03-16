@@ -34,7 +34,6 @@ namespace Mineswooper.Model
                 }
             }
         }
-
         public int PresumedMines
         {
             get { return flagsCount; }
@@ -79,10 +78,12 @@ namespace Mineswooper.Model
             while (minesPool > 0)
             {
                 randomPosition = new Point(rnd.Next(1, (int)Size.Y), rnd.Next(1, (int)Size.X));
+                var randomRow = Math.Abs(randomPosition.X - selectedPoint.X);
+                var randomCol = Math.Abs(randomPosition.Y - selectedPoint.Y);
                 GameTile selectedTile = Tiles.FirstOrDefault(t => t.TilePosition.X == randomPosition.X && t.TilePosition.Y == randomPosition.Y);
                 if (selectedTile != null && !selectedTile.IsMined)
                 {
-                    if (Math.Abs(randomPosition.X - selectedPoint.X) > 1 || Math.Abs(randomPosition.Y - selectedPoint.Y) > 1)//makes sure it's not already mined and is atleast one tile away from players click
+                    if (randomRow > 1 || randomCol > 1)//empty and atleast one tile away from the initial
                     {
                         selectedTile.IsMined = true;
                         minesPool--;
@@ -131,8 +132,9 @@ namespace Mineswooper.Model
         }
         public void GameTileCascadeRevealAttempt(Point selectedPoint)
         {
+            var flaggedAdjacentTiles = Adjacent(selectedPoint).FindAll(t => t.IsFlagged);
             GameTile selectedTile = Tiles.FirstOrDefault(t => t.TilePosition.X == selectedPoint.X && t.TilePosition.Y == selectedPoint.Y);
-            if (selectedTile.IsRevealed && Adjacent(selectedPoint).FindAll(t => t.IsFlagged).Count == selectedTile.AdjacentMines)
+            if (selectedTile.IsRevealed && flaggedAdjacentTiles.Count == selectedTile.AdjacentMines)
             {
                 foreach (var tile in Adjacent(selectedPoint))
                     if (!tile.IsFlagged)
@@ -165,15 +167,15 @@ namespace Mineswooper.Model
         }
         public List<GameTile> Adjacent(Point selectedPoint)//returns a list of tiles adjacent to the selected one, from 3 to 9 depending on the selected tile position
         {
-            List<GameTile> adj = new List<GameTile>();
+            List<GameTile> adjacentTiles = new List<GameTile>();
             for (int row = (int)AdjacentPositions.Prev; row <= (int)AdjacentPositions.Next; row++)//adds the whole sqare 
                 for (int col = (int)AdjacentPositions.Prev; col <= (int)AdjacentPositions.Next; col++)
                 {
                     var cur = Tiles.FirstOrDefault(x => x.TilePosition.X == selectedPoint.X + row && x.TilePosition.Y == selectedPoint.Y + col);
-                    if (cur != null) adj.Add(cur);
+                    if (cur != null) adjacentTiles.Add(cur);
                 }
-            adj.Remove(adj.FirstOrDefault(x => x.TilePosition.X == selectedPoint.X && x.TilePosition.Y == selectedPoint.Y));//excludes the selected tile
-            return adj;
+            adjacentTiles.Remove(adjacentTiles.FirstOrDefault(x => x.TilePosition.X == selectedPoint.X && x.TilePosition.Y == selectedPoint.Y));//excludes the central tile
+            return adjacentTiles;
         }
         public void MinedTileRevealed()//defeat condition met
         {
