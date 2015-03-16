@@ -137,6 +137,8 @@ namespace Mineswooper.ViewModel
                     VictoryOpen = true;
                     IsUIEnabled = false;
                     break;
+                case "Defeat":
+                    break;
             }
         }
     }

@@ -20,7 +20,7 @@
     </Window.Resources>
 
     <Grid x:Name="LayoutRoot">
-        <Menu IsMainMenu="True" Margin="3" HorizontalAlignment="Left" VerticalAlignment="Top" BorderBrush="Black" BorderThickness="1" IsEnabled="{Binding IsUIEnabled}">
+        <Menu IsMainMenu="True" Style="{StaticResource MainMenu}"  IsEnabled="{Binding IsUIEnabled}">
             <MenuItem Header="Game">
                 <MenuItem Header="New" Command="{Binding FieldResetCommand}"/>
                 <MenuItem Header="Rules" Command="{Binding ShowRules}"/>
@@ -29,16 +29,13 @@
                 <MenuItem Header="Exit" Command="{Binding ShutdownCommand}"/>
             </MenuItem>
         </Menu>
+
         <StackPanel Orientation="Vertical">
             <StackPanel VerticalAlignment="Top" HorizontalAlignment="Center"  Orientation="Horizontal" Margin="15">
                 <Label Content="{Binding Mines}" Style="{StaticResource ScoreLabel}" HorizontalAlignment="Left" HorizontalContentAlignment="Left"/>
                 <Button Content="{StaticResource FaceIcon}" 
-                        Background="Gray"
-                        IsEnabled="{Binding IsUIEnabled}"
-                        Width="{Binding CellSize}" 
-                        Height="{Binding CellSize}"  
-                        BorderBrush="Black" 
-                        BorderThickness="1">
+                        Style="{StaticResource FaceButton}"
+                        IsEnabled="{Binding IsUIEnabled}">
                     <Button.InputBindings>
                         <MouseBinding MouseAction="LeftClick" Command="{Binding FieldResetCommand}"/>
                     </Button.InputBindings>
@@ -46,17 +43,17 @@
                 <Label Content="{Binding Score}" Style="{StaticResource ScoreLabel}" HorizontalAlignment="Right" HorizontalContentAlignment="Right"/>
             </StackPanel>
 
-            <ItemsControl x:Name="icGameField" ItemsSource="{Binding Field}" Width="{Binding FieldWidth}" Height="{Binding FieldHeight}" VerticalAlignment="Top" IsEnabled="{Binding IsUIEnabled}">
+            <ItemsControl x:Name="GameField" ItemsSource="{Binding Field}" Width="{Binding FieldWidth}" Height="{Binding FieldHeight}" VerticalAlignment="Top" IsEnabled="{Binding IsUIEnabled}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <Button Content="{Binding Path=TileContent,UpdateSourceTrigger=PropertyChanged}" 
-                            Width="{Binding DataContext.CellSize,ElementName=icGameField}"
-                            Height="{Binding DataContext.CellSize,ElementName=icGameField}"
+                            Width="{Binding DataContext.CellSize,ElementName=GameField}"
+                            Height="{Binding DataContext.CellSize,ElementName=GameField}"
                             Style="{StaticResource MinesweeperGridButton}">
                             <Button.InputBindings>
-                                <MouseBinding MouseAction="LeftClick" Command="{Binding DataContext.GameTileClick,ElementName=icGameField}" CommandParameter="{Binding Path=TilePosition}"/>
-                                <MouseBinding MouseAction="MiddleClick" Command="{Binding DataContext.GameTileMultiClick,ElementName=icGameField}" CommandParameter="{Binding Path=TilePosition}"/>
-                                <MouseBinding MouseAction="RightClick" Command="{Binding DataContext.GameTileSetFlag,ElementName=icGameField}" CommandParameter="{Binding Path=TilePosition}"/>
+                                <MouseBinding MouseAction="LeftClick" Command="{Binding DataContext.GameTileClick,ElementName=GameField}" CommandParameter="{Binding Path=TilePosition}"/>
+                                <MouseBinding MouseAction="MiddleClick" Command="{Binding DataContext.GameTileMultiClick,ElementName=GameField}" CommandParameter="{Binding Path=TilePosition}"/>
+                                <MouseBinding MouseAction="RightClick" Command="{Binding DataContext.GameTileSetFlag,ElementName=GameField}" CommandParameter="{Binding Path=TilePosition}"/>
                             </Button.InputBindings>
                         </Button>
                     </DataTemplate>
@@ -107,44 +104,26 @@
                                 <DataTemplate>
                                     <StackPanel x:Name="Main" >
                                         <StackPanel Orientation="Horizontal">
-                                            <TextBlock Text="Name:"
-                                        Margin="0,0,5,0"
-                                        Padding="10,0,0,10"
-                                        FontWeight="Bold" />
-                                            <TextBlock Text="{Binding Name}" 
-                                        Padding="0,0,0,10"/>
+                                            <TextBlock Text="Name:" Style="{StaticResource ScoreTag}"/>
+                                            <TextBlock Text="{Binding Name}" Padding="0,0,0,10"/>
                                         </StackPanel>
                                         <StackPanel Orientation="Horizontal" Margin="5">
                                             <StackPanel Orientation="Horizontal">
-                                                <TextBlock Text="Score:"
-                                            Margin="0,0,5,0"
-                                            Padding="10,0,0,10"
-                                            FontWeight="Bold" />
-                                                <TextBlock Text="{Binding Score}" 
-                                            Padding="0,0,0,10"/>
+                                                <TextBlock Text="Score:" Style="{StaticResource ScoreTag}"/>
+                                                <TextBlock Text="{Binding Score}" Padding="0,0,0,10"/>
                                             </StackPanel>
                                             <StackPanel Orientation="Horizontal">
-                                                <TextBlock Text="Date:"
-                                            Margin="0,0,5,0"
-                                            Padding="10,0,0,10"
-                                            FontWeight="Bold" />
-                                                <TextBlock Text="{Binding Date}" 
-                                            Padding="0,0,0,10"/>
+                                                <TextBlock Text="Date:" Style="{StaticResource ScoreTag}"/>
+                                                <TextBlock Text="{Binding Date}" Padding="0,0,0,10"/>
                                             </StackPanel>
                                         </StackPanel>
                                     </StackPanel>
                                     <DataTemplate.Triggers>
-                                        <Trigger Property="ItemsControl.AlternationIndex"
-                                    Value="0">
-                                            <Setter TargetName="Main"
-                                    Property="Background"
-                                    Value="LightGray" />
+                                        <Trigger Property="ItemsControl.AlternationIndex" Value="0">
+                                            <Setter TargetName="Main" Property="Background" Value="LightGray" />
                                         </Trigger>
-                                        <Trigger Property="ItemsControl.AlternationIndex"
-                                    Value="1">
-                                            <Setter TargetName="Main"
-                                    Property="Background"
-                                    Value="White" />
+                                        <Trigger Property="ItemsControl.AlternationIndex" Value="1">
+                                            <Setter TargetName="Main" Property="Background" Value="White" />
                                         </Trigger>
                                     </DataTemplate.Triggers>
                                 </DataTemplate>

@@ -139,8 +139,8 @@ namespace Mineswooper.Model
                     {
                         if (!tile.IsMined)
                         {
-                            if (tile.AdjacentMines == 0) CascadeReveal(tile.TilePosition);
-                            else tile.RevealTile();
+                            if (tile.AdjacentMines == 0) { CascadeReveal(tile.TilePosition); }
+                            tile.RevealTile();
                         }
                         else MinedTileRevealed();
                     }
@@ -179,8 +179,7 @@ namespace Mineswooper.Model
         {
             foreach (var tile in Tiles) tile.RevealTile();
             timer.Stop();
-            MessageBox.Show("BOOM");
-            ResetField();
+            NotifyPropertyChanged("Defeat");
         }
         public void CheckForVictory()
         {
