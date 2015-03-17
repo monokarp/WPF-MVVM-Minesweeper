@@ -20,7 +20,7 @@ namespace Mineswooper.ViewModel
         private bool victoryOpen = false;
         private bool isUIEnabled = true;
         private string gameRules = "It's mineswoopr m8, reveal any tile to start the game.\nLeft click reveals a tile, right click flags a consealed tile, middle click reveals adjacent tiles in case all presumed adjacent mines are flagged. Each revealed tile shows the amount of mines in adjacent tiles.\nFlag every mine on the field or reveal every non-mined tile to win. \nTime elapsed is your final score.";
-        private GameField field = new GameField(30, 16, 3);
+        private GameField field = new GameField(30, 16, 99);
         #endregion
         public MainViewModel()
         {
@@ -38,12 +38,13 @@ namespace Mineswooper.ViewModel
             CloseScores = new RelayCommand(() => { ScoreOpen = false; IsUIEnabled = true; });
             SaveScore = new RelayCommand(() =>
             {
-                scores.Add(new ScoreEntry { Name = PlayerScore.Name, Date = PlayerScore.Date, Score = PlayerScore.Score });
+                var entry = new ScoreEntry { Name = PlayerScore.Name, Date = PlayerScore.Date, Score = PlayerScore.Score };
+                scores.Add(entry);
                 scores = new ObservableCollection<ScoreEntry>(scores.OrderBy(e => e.Score).ToList());
                 RaisePropertyChanged("ScoreEntries");
                 using (var dc = new ScoreContext())
                 {
-                    dc.ScoreEntries.Add(new ScoreEntry { Name = PlayerScore.Name, Date = PlayerScore.Date, Score = PlayerScore.Score });
+                    dc.ScoreEntries.Add(entry);
                     dc.SaveChanges();
                 }
                 VictoryOpen = false;
