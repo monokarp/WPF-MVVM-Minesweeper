@@ -5,11 +5,10 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:ignore="http://www.ignore.com"
         mc:Ignorable="d ignore"
-        Height="780"
-        Width="1250"
-        Title="MINESWOOPR"
-        ResizeMode="NoResize"
-        DataContext="{Binding Main, Source={StaticResource Locator}}">
+        Style="{DynamicResource MainWindow}"
+        MouseLeftButtonDown="Window_MouseLeftButtonDown"
+        DataContext="{Binding Main, Source={StaticResource Locator}}"
+        >
 
     <Window.Resources>
         <ResourceDictionary>
@@ -31,44 +30,37 @@
         </Menu>
 
         <StackPanel Orientation="Vertical">
-            <StackPanel VerticalAlignment="Top" HorizontalAlignment="Center"  Orientation="Horizontal" Margin="15">
-                <Label Content="{Binding Mines}" Style="{StaticResource ScoreLabel}" HorizontalAlignment="Left" HorizontalContentAlignment="Left"/>
-                <Button Content="{StaticResource FaceIcon}" 
-                        Style="{StaticResource FaceButton}"
-                        IsEnabled="{Binding IsUIEnabled}">
-                    <Button.InputBindings>
-                        <MouseBinding MouseAction="LeftClick" Command="{Binding FieldResetCommand}"/>
-                    </Button.InputBindings>
-                </Button>
-                <Label Content="{Binding Score}" Style="{StaticResource ScoreLabel}" HorizontalAlignment="Right" HorizontalContentAlignment="Right"/>
-            </StackPanel>
 
-            <ItemsControl x:Name="GameField" ItemsSource="{Binding Field}" Width="{Binding FieldWidth}" Height="{Binding FieldHeight}" VerticalAlignment="Top" IsEnabled="{Binding IsUIEnabled}">
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <Button Content="{Binding Path=TileContent,UpdateSourceTrigger=PropertyChanged}" 
+            <Label Content="{Binding Score}" Style="{StaticResource ScoreLabel}" HorizontalAlignment="Right" HorizontalContentAlignment="Right"/>
+            <Border BorderThickness="2" BorderBrush="White" CornerRadius="3" Margin="15" Width="{Binding FieldWidth}" Height="{Binding FieldHeight}">
+                <ItemsControl x:Name="GameField" ItemsSource="{Binding Field}" Width="{Binding FieldWidth}" Height="{Binding FieldHeight}" VerticalAlignment="Top" IsEnabled="{Binding IsUIEnabled}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Button  
                             Width="{Binding DataContext.CellSize,ElementName=GameField}"
                             Height="{Binding DataContext.CellSize,ElementName=GameField}"
-                            Style="{StaticResource MinesweeperGridButton}">
-                            <Button.InputBindings>
-                                <MouseBinding MouseAction="LeftClick" Command="{Binding DataContext.GameTileClick,ElementName=GameField}" CommandParameter="{Binding Path=TilePosition}"/>
-                                <MouseBinding MouseAction="MiddleClick" Command="{Binding DataContext.GameTileMultiClick,ElementName=GameField}" CommandParameter="{Binding Path=TilePosition}"/>
-                                <MouseBinding MouseAction="RightClick" Command="{Binding DataContext.GameTileSetFlag,ElementName=GameField}" CommandParameter="{Binding Path=TilePosition}"/>
-                            </Button.InputBindings>
-                        </Button>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <UniformGrid Columns="{Binding Cols}" 
-                                 Rows="{Binding Rows}" 
-                                 Margin="15"
-                                 HorizontalAlignment="Center"
-                                 VerticalAlignment="Center"
-                                 />
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-            </ItemsControl>
+                            Style="{StaticResource PacmanGridButton}"
+                                
+                                >
+                                <Button.InputBindings>
+                                    <MouseBinding MouseAction="LeftClick" Command="{Binding DataContext.GameTileClick,ElementName=GameField}" CommandParameter="{Binding Path=TilePosition}"/>
+                                </Button.InputBindings>
+                            </Button>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <UniformGrid SnapsToDevicePixels="True" 
+                                     Columns="{Binding Cols}" 
+                                     Rows="{Binding Rows}" 
+                                     HorizontalAlignment="Center"
+                                     VerticalAlignment="Center"
+                                     Width="{Binding FieldWidth}"
+                                     Height="{Binding FieldHeight}" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                </ItemsControl>
+            </Border>
         </StackPanel>
 
 

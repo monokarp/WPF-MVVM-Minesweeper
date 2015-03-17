@@ -6,6 +6,7 @@ using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
+using System.Text;
 using System.Windows;
 
 namespace Mineswooper.ViewModel
@@ -19,18 +20,25 @@ namespace Mineswooper.ViewModel
         private bool rulesPopupOpen = false;
         private bool victoryOpen = false;
         private bool isUIEnabled = true;
-        private string gameRules = "It's mineswoopr m8, reveal any tile to start the game.\nLeft click reveals a tile, right click flags a consealed tile, middle click reveals adjacent tiles in case all presumed adjacent mines are flagged. Each revealed tile shows the amount of mines in adjacent tiles.\nFlag every mine on the field or reveal every non-mined tile to win. \nTime elapsed is your final score.";
-        private GameField field = new GameField(30, 16, 99);
+        private string gameRules = "It's pacman m8, rack up those pellets to score and don't get eaten.";
+        private GameField field = new GameField(23, 16);
         #endregion
         public MainViewModel()
         {
-            FieldWidth = cellSize * (int)field.Size.X;
-            FieldHeight = cellSize * (int)field.Size.Y;
             PlayerScore = new ScoreEntry { Name = "Anonymous", Score = 0 };
-            ShutdownCommand = new RelayCommand(() => { Application.Current.Shutdown(); });
-            GameTileClick = new RelayCommand<Point>((p) => { field.GameTileRevealAttempt(p); });
-            GameTileMultiClick = new RelayCommand<Point>((p) => { field.GameTileCascadeRevealAttempt(p); });
-            GameTileSetFlag = new RelayCommand<Point>((p) => { field.GameTileSetFlag(p); });
+            ShutdownCommand = new RelayCommand(() =>
+            {
+                //StringBuilder map = new StringBuilder();
+                //foreach (var tile in field.Tiles)
+                //{
+                //    if (tile.IsTraversable) map.Append("T");
+                //    else map.Append("W");
+                //}
+                //string strMap = map.ToString();
+                //System.IO.File.WriteAllText(@"C:\Users\asus.pc\Desktop\job\task_projects\Mineswooper\Mineswooper\Model\defaultMap.txt", strMap);
+                Application.Current.Shutdown();
+            });
+            //GameTileClick = new RelayCommand<Point>((p) => { field.ToggleTraversable(p); });
             FieldResetCommand = new RelayCommand(() => { field.ResetField(); });
             ShowRules = new RelayCommand(() => { RulesOpen = true; IsUIEnabled = false; });
             CloseRules = new RelayCommand(() => { RulesOpen = false; IsUIEnabled = true; });
@@ -60,8 +68,6 @@ namespace Mineswooper.ViewModel
         #region Relay commands
         public RelayCommand ShutdownCommand { get; set; }
         public RelayCommand<Point> GameTileClick { get; set; }
-        public RelayCommand<Point> GameTileMultiClick { get; set; }
-        public RelayCommand<Point> GameTileSetFlag { get; set; }
         public RelayCommand FieldResetCommand { get; set; }
         public RelayCommand ShowRules { get; set; }
         public RelayCommand ShowScores { get; set; }
@@ -120,15 +126,14 @@ namespace Mineswooper.ViewModel
                 RaisePropertyChanged("VictoryOpen");
             }
         }
-        public int FieldWidth { get; set; }
-        public int FieldHeight { get; set; }
+        public int FieldWidth { get { return cellSize * (int)field.Size.X; } }
+        public int FieldHeight { get { return cellSize * (int)field.Size.Y; } }
         public ScoreEntry PlayerScore { get; set; }
         public string Rules { get { return gameRules; } }
         public int CellSize { get { return cellSize; } }
         public ObservableCollection<GameTile> Field { get { return field.Tiles; } }
         public int Rows { get { return (int)field.Size.Y; } }
         public int Cols { get { return (int)field.Size.X; } }
-        public int Mines { get { return field.PresumedMines; } }
         public int Score { get { return field.Score; } }
         #endregion
         private void GameFieldEvent(object sender, PropertyChangedEventArgs e)

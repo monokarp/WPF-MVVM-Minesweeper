@@ -19,13 +19,11 @@ namespace Mineswooper.Model
         #endregion
         #region Privates
         private string tileContent;
-        private bool isRevealed;
-        private bool isFlagged;
+        private bool isTraversable;
+        private bool hasPellet=false;
         #endregion
         #region Public properties
         public Point TilePosition { get; set; }
-        public bool IsMined { get; set; }
-        public int AdjacentMines { get; set; }
         public string TileContent
         {
             get { return tileContent; }
@@ -35,63 +33,33 @@ namespace Mineswooper.Model
                 NotifyPropertyChanged("TileContent");
             }
         }
-        public bool IsRevealed
+        public bool IsTraversable
         {
-            get { return isRevealed; }
+            get { return isTraversable; }
             set
             {
-                if (value != isRevealed) isRevealed = value;
-                NotifyPropertyChanged("IsRevealed");
+                if (value != isTraversable) isTraversable = value;
+                NotifyPropertyChanged("IsTraversable");
             }
         }
-        public bool IsFlagged
+        public bool HasPellet
         {
-            get { return isFlagged; }
+            get { return hasPellet; }
             set
             {
-                if (value != isFlagged) isFlagged = value;
-                NotifyPropertyChanged("IsFlagged");
+                if (value != hasPellet) hasPellet = value;
+                NotifyPropertyChanged("HasPellet");
             }
         }
         #endregion
         public GameTile(int a, int b)
         {
             TilePosition = new Point(a, b);
-            IsMined = false;
-            IsRevealed = false;
-            IsFlagged = false;
-            AdjacentMines = 0;
-            TileContent = "";
         }
         #region Tile methods
         public void UpdateTile()
         {
-            if (IsRevealed)
-            {
-                if (IsMined) TileContent = "*";
-                else if (AdjacentMines != 0) TileContent = AdjacentMines.ToString();
-            }
-        }
-        public void RevealTile()
-        {
-            if (!IsRevealed)
-            {
-                IsRevealed = true;
-                UpdateTile();
-            }
-        }
-        public void ToggleFlag()
-        {
-            if (!IsFlagged)
-            {
-                TileContent = "!";
-                IsFlagged = true;
-            }
-            else
-            {
-                TileContent = "";
-                IsFlagged = false;
-            }
+            if (!IsTraversable) TileContent = "wall";
         }
         #endregion
     }

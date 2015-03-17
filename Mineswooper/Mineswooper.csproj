@@ -135,6 +135,12 @@
   <ItemGroup>
     <Resource Include="Skins\face.png" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Model\defaultMap.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Skins\pellet.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

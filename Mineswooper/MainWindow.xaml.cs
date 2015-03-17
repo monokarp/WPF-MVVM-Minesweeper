@@ -1,5 +1,6 @@
 ﻿using System.Windows;
 using Mineswooper.ViewModel;
+using System.Windows.Input;
 
 namespace Mineswooper
 {
@@ -15,6 +16,11 @@ namespace Mineswooper
         {
             InitializeComponent();
             Closing += (s, e) => ViewModelLocator.Cleanup();
+
+        }
+        private void Window_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            this.DragMove();
         }
     }
 }
