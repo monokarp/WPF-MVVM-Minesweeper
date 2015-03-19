@@ -1,5 +1,7 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:l="clr-namespace:Mineswooper.ViewModel">
+    <l:CoordinateToCanvasPositionConverter x:Key="CoordinateToCanvasPositionConverter"/>
     <Image x:Key="FaceIcon" Source="face.png"/>
     <Image x:Key="Pellet" Source="pellet.png"/>
     <Style x:Key="MainWindow" TargetType="Window">
@@ -98,30 +100,27 @@
         </Style.Resources>
     </Style>
 
-    <Style x:Key="PacmanGridButton" TargetType="Button">
+    <Style x:Key="PacmanTile" TargetType="Rectangle">
         <Setter Property="OverridesDefaultStyle" Value="True"/>
-        <Setter Property="Background" Value="Black"/>
-        <Setter Property="Foreground" Value="Yellow"/>
-        <Setter Property="HorizontalContentAlignment" Value="Center"/>
-        <Setter Property="VerticalContentAlignment" Value="Center"/>
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="Button">
-                    <Border Name="border" 
-                            Background="{TemplateBinding Background}">
-                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
-                    </Border>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
+        <Setter Property="Fill" Value="Black"/>
+        
         <Style.Triggers>
-            <DataTrigger Binding="{Binding HasPellet}" Value="True">
-                <Setter Property="Content" Value="*" />
-            </DataTrigger>
             <DataTrigger Binding="{Binding IsTraversable}" Value="False">
-                <Setter Property="Background" Value="BlueViolet" />
+                <Setter Property="Fill" Value="BlueViolet" />
             </DataTrigger>
         </Style.Triggers>
+    </Style>
+    <Style x:Key="PacmanPellet" TargetType="Ellipse">
+        <Setter Property="Visibility" Value="Hidden" />
+        <Setter Property="Fill" Value="Gold" />
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding HasPellet}" Value="true">
+                <Setter Property="Visibility" Value="Visible" />
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+    <Style x:Key="PacmapPlayer" TargetType="Ellipse">
+        <Setter Property="Fill" Value="Gold"/>
     </Style>
 
 </ResourceDictionary>

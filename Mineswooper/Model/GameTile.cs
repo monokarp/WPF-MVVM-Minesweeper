@@ -18,21 +18,12 @@ namespace Mineswooper.Model
         }
         #endregion
         #region Privates
-        private string tileContent;
         private bool isTraversable;
         private bool hasPellet=false;
         #endregion
         #region Public properties
         public Point TilePosition { get; set; }
-        public string TileContent
-        {
-            get { return tileContent; }
-            set
-            {
-                if (value != tileContent) tileContent = value;
-                NotifyPropertyChanged("TileContent");
-            }
-        }
+       
         public bool IsTraversable
         {
             get { return isTraversable; }
@@ -57,10 +48,7 @@ namespace Mineswooper.Model
             TilePosition = new Point(a, b);
         }
         #region Tile methods
-        public void UpdateTile()
-        {
-            if (!IsTraversable) TileContent = "wall";
-        }
+     
         #endregion
     }
 }

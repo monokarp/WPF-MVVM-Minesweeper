@@ -1,6 +1,9 @@
 ﻿using System.Windows;
 using Mineswooper.ViewModel;
 using System.Windows.Input;
+using System.Windows.Data;
+using System;
+using System.Globalization;
 
 namespace Mineswooper
 {

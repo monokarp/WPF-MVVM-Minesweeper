@@ -33,6 +33,8 @@ namespace Mineswooper.Model
         #region Public Properties
         public Point Size { get; set; }
         public ObservableCollection<GameTile> Tiles { get; set; }
+        public Point Player { get; private set; }
+        public ObservableCollection<Point> Ghosts { get; private set; }
         public int Score
         {
             get { return currentScore; }
@@ -51,6 +53,7 @@ namespace Mineswooper.Model
         public GameField(int cols, int rows)
         {
             Size = new Point(cols, rows);
+            Ghosts = new ObservableCollection<Point>();
             timer = new DispatcherTimer();
             timer.Interval = new TimeSpan(0, 0, 1);
             timer.Tick += (s, e) => Score++;
@@ -71,12 +74,24 @@ namespace Mineswooper.Model
         }
         private void InitializeField(string recievedMap)
         {
-            //there has to be some logic for checking the string legitimacy
-
+            //there has to be some validation logic
+            Random rnd = new Random();
+            Point randomPosition;
+            GameTile randomTile;
             char[] map = defaultMap.ToCharArray();
             for (int count = 0; count < map.Length; count++)
             {
                 if (map[count] == 'T') { Tiles[count].IsTraversable = true; Tiles[count].HasPellet = true; }
+            }
+            while (Player == null)
+            {
+                randomPosition = new Point(rnd.Next(1, (int)Size.Y), rnd.Next(1, (int)Size.X));
+                randomTile = Tiles.FirstOrDefault(t => t.TilePosition.X == randomPosition.X && t.TilePosition.Y == randomPosition.Y);
+                if (randomTile.IsTraversable)
+                {
+                    Player = new Point(randomTile.TilePosition.X, randomTile.TilePosition.Y);
+                    randomTile.HasPellet = false;
+                }
             }
             isInitialized = true;
         }
@@ -87,5 +102,6 @@ namespace Mineswooper.Model
             if (cur.IsTraversable) cur.IsTraversable = false;
             else cur.IsTraversable = true;
         }
+
     }
 }

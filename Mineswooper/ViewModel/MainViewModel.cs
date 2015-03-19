@@ -5,9 +5,11 @@ using Mineswooper.Model;
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Windows;
+using System.Windows.Data;
 
 namespace Mineswooper.ViewModel
 {
@@ -15,7 +17,8 @@ namespace Mineswooper.ViewModel
     {
         #region Privates
         private ObservableCollection<ScoreEntry> scores;
-        private const int cellSize = 40;
+        private static int cellSize = 40;
+        private static int pelletSize = cellSize / 3;
         private bool scorePopupOpen = false;
         private bool rulesPopupOpen = false;
         private bool victoryOpen = false;
@@ -130,7 +133,9 @@ namespace Mineswooper.ViewModel
         public int FieldHeight { get { return cellSize * (int)field.Size.Y; } }
         public ScoreEntry PlayerScore { get; set; }
         public string Rules { get { return gameRules; } }
-        public int CellSize { get { return cellSize; } }
+        public static int CellSize { get { return cellSize; } }
+        public static int PelletSize { get { return pelletSize; } }
+        public static int PelletCenterPosition { get { return cellSize / 2 - pelletSize / 2; } }
         public ObservableCollection<GameTile> Field { get { return field.Tiles; } }
         public int Rows { get { return (int)field.Size.Y; } }
         public int Cols { get { return (int)field.Size.X; } }
@@ -155,6 +160,18 @@ namespace Mineswooper.ViewModel
                 case "Defeat":
                     break;
             }
+        }
+
+    }
+    public class CoordinateToCanvasPositionConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            return MainViewModel.CellSize * ((int)(double)value - 1);
+        }
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
         }
     }
 }
