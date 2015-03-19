@@ -32,8 +32,8 @@
         <StackPanel Orientation="Vertical">
 
             <Label Content="{Binding Score}" Style="{StaticResource ScoreLabel}" HorizontalAlignment="Right" HorizontalContentAlignment="Right"/>
-            <Border BorderThickness="2" BorderBrush="White" CornerRadius="3" Margin="15" Width="{Binding FieldWidth}" Height="{Binding FieldHeight}">
-                <Canvas >
+            <Border BorderThickness="2" BorderBrush="White" CornerRadius="3" Width="{Binding FieldWidth}" Height="{Binding FieldHeight}">
+                <Canvas ClipToBounds="True">
                     <ItemsControl x:Name="GameField" ItemsSource="{Binding Field}"  VerticalAlignment="Top" IsEnabled="{Binding IsUIEnabled}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
@@ -69,8 +69,7 @@
                             </Style>
                         </ItemsControl.ItemContainerStyle>
                     </ItemsControl>
-                    <Label Content="+"
-                           HorizontalContentAlignment="Center"
+                    <Label HorizontalContentAlignment="Center"
                            VerticalContentAlignment="Center"
                            FontWeight="ExtraBold"
                            Height="{Binding CharacterSize}"

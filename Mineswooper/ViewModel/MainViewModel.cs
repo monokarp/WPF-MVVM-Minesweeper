@@ -130,8 +130,8 @@ namespace Mineswooper.ViewModel
                 RaisePropertyChanged("VictoryOpen");
             }
         }
-        public int FieldWidth { get { return cellSize * (int)field.Size.X + 5; } }
-        public int FieldHeight { get { return cellSize * (int)field.Size.Y + 5; } }
+        public int FieldWidth { get { return cellSize * (int)field.Size.X ; } }
+        public int FieldHeight { get { return cellSize * (int)field.Size.Y ; } }
         public ScoreEntry PlayerScore { get; set; }
         public string Rules { get { return gameRules; } }
         public static int CellSize { get { return cellSize; } }
