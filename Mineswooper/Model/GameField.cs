@@ -27,13 +27,25 @@ namespace Mineswooper.Model
         private static string defaultMap = System.IO.File.ReadAllText(@"C:\Users\asus.pc\Desktop\job\task_projects\Mineswooper\Mineswooper\Model\defaultMap.txt");
         private bool isInitialized;
         private int currentScore;
+        private Point player;
         private DispatcherTimer timer;
         #endregion
 
         #region Public Properties
         public Point Size { get; set; }
         public ObservableCollection<GameTile> Tiles { get; set; }
-        public Point Player { get; private set; }
+        public Point Player
+        {
+            get { return player; }
+            private set
+            {
+                if (value != player)
+                {
+                    player = value;
+                    NotifyPropertyChanged("Player");
+                }
+            }
+        }
         public ObservableCollection<Point> Ghosts { get; private set; }
         public int Score
         {
@@ -54,6 +66,7 @@ namespace Mineswooper.Model
         {
             Size = new Point(cols, rows);
             Ghosts = new ObservableCollection<Point>();
+            Player = default(Point);
             timer = new DispatcherTimer();
             timer.Interval = new TimeSpan(0, 0, 1);
             timer.Tick += (s, e) => Score++;
@@ -83,7 +96,7 @@ namespace Mineswooper.Model
             {
                 if (map[count] == 'T') { Tiles[count].IsTraversable = true; Tiles[count].HasPellet = true; }
             }
-            while (Player == null)
+            while (Player == default(Point))
             {
                 randomPosition = new Point(rnd.Next(1, (int)Size.Y), rnd.Next(1, (int)Size.X));
                 randomTile = Tiles.FirstOrDefault(t => t.TilePosition.X == randomPosition.X && t.TilePosition.Y == randomPosition.Y);

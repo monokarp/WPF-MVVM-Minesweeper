@@ -33,43 +33,62 @@
 
             <Label Content="{Binding Score}" Style="{StaticResource ScoreLabel}" HorizontalAlignment="Right" HorizontalContentAlignment="Right"/>
             <Border BorderThickness="2" BorderBrush="White" CornerRadius="3" Margin="15" Width="{Binding FieldWidth}" Height="{Binding FieldHeight}">
-                <ItemsControl x:Name="GameField" ItemsSource="{Binding Field}" Width="{Binding FieldWidth}" Height="{Binding FieldHeight}" VerticalAlignment="Top" IsEnabled="{Binding IsUIEnabled}">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <Canvas>
-                                <Rectangle Style="{StaticResource PacmanTile}"
+                <Canvas >
+                    <ItemsControl x:Name="GameField" ItemsSource="{Binding Field}"  VerticalAlignment="Top" IsEnabled="{Binding IsUIEnabled}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Canvas>
+                                    <Rectangle Style="{StaticResource PacmanTile}"
                                        Width="{Binding DataContext.CellSize,ElementName=GameField}"
                                        Height="{Binding DataContext.CellSize,ElementName=GameField}">
-                                    <Rectangle.InputBindings>
-                                        <MouseBinding MouseAction="LeftClick" Command="{Binding DataContext.GameTileClick,ElementName=GameField}" CommandParameter="{Binding Path=TilePosition}"/>
-                                    </Rectangle.InputBindings>
-                                </Rectangle>
-                                <Ellipse Style="{StaticResource PacmanPellet}"
+                                        <Rectangle.InputBindings>
+                                            <MouseBinding MouseAction="LeftClick" Command="{Binding DataContext.GameTileClick,ElementName=GameField}" CommandParameter="{Binding Path=TilePosition}"/>
+                                        </Rectangle.InputBindings>
+                                    </Rectangle>
+                                    <Ellipse Style="{StaticResource PacmanPellet}"
                                          Width="{Binding DataContext.PelletSize,ElementName=GameField}"
                                          Height="{Binding DataContext.PelletSize,ElementName=GameField}"
                                          Canvas.Left="{Binding DataContext.PelletCenterPosition,ElementName=GameField}"
                                          Canvas.Top="{Binding DataContext.PelletCenterPosition,ElementName=GameField}">
-                                </Ellipse>
-                            </Canvas>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <Canvas SnapsToDevicePixels="True" 
+                                    </Ellipse>
+                                </Canvas>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <Canvas SnapsToDevicePixels="True" 
                                     HorizontalAlignment="Center"
                                     VerticalAlignment="Center"
-                                    Width="{Binding FieldWidth}"
-                                    Height="{Binding FieldHeight}" />
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                    <ItemsControl.ItemContainerStyle>
-                        <Style>
-                            <Setter Property="Canvas.Left" Value="{Binding TilePosition.Y,Converter={StaticResource CoordinateToCanvasPositionConverter}}" />
-                            <Setter Property="Canvas.Top" Value="{Binding TilePosition.X,Converter={StaticResource CoordinateToCanvasPositionConverter}}" />
-                        </Style>
-                    </ItemsControl.ItemContainerStyle>
-                </ItemsControl>
+                                    />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemContainerStyle>
+                            <Style>
+                                <Setter Property="Canvas.Left" Value="{Binding TilePosition.Y,Converter={StaticResource CoordinateToCanvasPositionConverter}}" />
+                                <Setter Property="Canvas.Top" Value="{Binding TilePosition.X,Converter={StaticResource CoordinateToCanvasPositionConverter}}" />
+                            </Style>
+                        </ItemsControl.ItemContainerStyle>
+                    </ItemsControl>
+                    <Label Content="+"
+                           HorizontalContentAlignment="Center"
+                           VerticalContentAlignment="Center"
+                           FontWeight="ExtraBold"
+                           Height="{Binding CharacterSize}"
+                           Width="{Binding CharacterSize}"
+                           Canvas.Left="{Binding PlayerPosition.Y,Converter={StaticResource PlayerPositionConverter}}"
+                           Canvas.Top="{Binding PlayerPosition.X,Converter={StaticResource PlayerPositionConverter}}">
+                        <Label.Background>
+                            <VisualBrush>
+                                <VisualBrush.Visual>
+                                    <Ellipse Height="{Binding CharacterSize}"
+                                             Width="{Binding CharacterSize}"
+                                             Fill="Green" />
+                                </VisualBrush.Visual>
+                            </VisualBrush>
+                        </Label.Background>
+                    </Label>
+                </Canvas>
+
             </Border>
         </StackPanel>
 

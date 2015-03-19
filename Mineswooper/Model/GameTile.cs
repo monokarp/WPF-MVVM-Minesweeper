@@ -18,7 +18,7 @@ namespace Mineswooper.Model
         }
         #endregion
         #region Privates
-        private bool isTraversable;
+        private bool isTraversable=false;
         private bool hasPellet=false;
         #endregion
         #region Public properties

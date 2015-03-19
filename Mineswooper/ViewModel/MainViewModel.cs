@@ -18,7 +18,8 @@ namespace Mineswooper.ViewModel
         #region Privates
         private ObservableCollection<ScoreEntry> scores;
         private static int cellSize = 40;
-        private static int pelletSize = cellSize / 3;
+        private static int pelletSize = cellSize / 5;
+        public static int characterSize = cellSize * 3 / 4;
         private bool scorePopupOpen = false;
         private bool rulesPopupOpen = false;
         private bool victoryOpen = false;
@@ -129,13 +130,17 @@ namespace Mineswooper.ViewModel
                 RaisePropertyChanged("VictoryOpen");
             }
         }
-        public int FieldWidth { get { return cellSize * (int)field.Size.X; } }
-        public int FieldHeight { get { return cellSize * (int)field.Size.Y; } }
+        public int FieldWidth { get { return cellSize * (int)field.Size.X + 5; } }
+        public int FieldHeight { get { return cellSize * (int)field.Size.Y + 5; } }
         public ScoreEntry PlayerScore { get; set; }
         public string Rules { get { return gameRules; } }
         public static int CellSize { get { return cellSize; } }
         public static int PelletSize { get { return pelletSize; } }
         public static int PelletCenterPosition { get { return cellSize / 2 - pelletSize / 2; } }
+        public static int CharacterSize { get { return characterSize; } }
+        public static int CharacterCenterPosition { get { return cellSize / 2 - characterSize / 2; } }
+        public Point PlayerPosition { get { return new Point(field.Player.X, field.Player.Y); } }
+
         public ObservableCollection<GameTile> Field { get { return field.Tiles; } }
         public int Rows { get { return (int)field.Size.Y; } }
         public int Cols { get { return (int)field.Size.X; } }
@@ -145,11 +150,11 @@ namespace Mineswooper.ViewModel
         {
             switch (e.PropertyName)
             {
-                case "Score":
-                    RaisePropertyChanged("Score");
+                case "HasPellet":
+                    RaisePropertyChanged("HasPellet");
                     break;
-                case "PresumedMines":
-                    RaisePropertyChanged("Mines");
+                case "IsTraversable":
+                    RaisePropertyChanged("IsTraversable");
                     break;
                 case "Victory":
                     PlayerScore.Score = field.Score;
@@ -163,6 +168,7 @@ namespace Mineswooper.ViewModel
         }
 
     }
+    #region Converters
     public class CoordinateToCanvasPositionConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
@@ -174,4 +180,16 @@ namespace Mineswooper.ViewModel
             throw new NotImplementedException();
         }
     }
+    public class PlayerPositionConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            return MainViewModel.CellSize * ((int)(double)value - 1) + MainViewModel.CharacterCenterPosition;
+        }
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+    #endregion
 }
