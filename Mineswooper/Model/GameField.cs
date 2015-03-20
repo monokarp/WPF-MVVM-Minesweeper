@@ -77,26 +77,11 @@ namespace Mineswooper.Model
         #region Game field initializers
         public GameField(int cols, int rows)
         {
-            var rnd = new Random();
+
             Size = new Point(cols, rows);
             timers = new List<DispatcherTimer>();
             Ghosts = new ObservableCollection<Point>();
             Player = default(Point);
-            var timer = new DispatcherTimer();
-            timer.Interval = new TimeSpan(0, 0, 0, 0, 300);
-            timer.Tick += (s, e) =>
-            {
-                for (int count = 0; count < Ghosts.Count; )
-                {
-                    var cur = ghosts[count];
-                    List<Directions> randomDirection = TraversibleDirections(cur);
-
-                    MoveCharacter(ref cur, randomDirection[rnd.Next(randomDirection.Count)]);
-                    ghosts[count] = cur;
-                    count++;
-                }
-            };
-            timers.Add(timer);
             ResetField();
         }
         public List<Directions> TraversibleDirections(Point p)
@@ -114,16 +99,36 @@ namespace Mineswooper.Model
         }
         public void ResetField()
         {
+            var rnd = new Random();
             if (Tiles != null) Tiles.Clear();
             else Tiles = new ObservableCollection<GameTile>();
+            if (ghosts != null) ghosts.Clear();
+            else ghosts = new ObservableCollection<Point>();
+            if (timers != null) timers.Clear();
+            else timers = new List<DispatcherTimer>();
             isInitialized = false;
+            var timer = new DispatcherTimer();
+            timer.Interval = new TimeSpan(0, 0, 0, 0, 300);
+            timer.Tick += (s, e) =>
+            {
+                for (int count = Ghosts.Count; count-- > 0; )
+                {
+                    var cur = ghosts[count];
+                    List<Directions> randomDirection = TraversibleDirections(cur);
+                    MoveCharacter(ref cur, randomDirection[rnd.Next(randomDirection.Count)]);
+                    CheckCollision(cur);
+                    ghosts[count] = cur;
+                }
+            };
+            timers.Add(timer);
             for (int row = 1; row <= Size.Y; row++)
             {
                 for (int col = 1; col <= Size.X; col++) Tiles.Add(new GameTile(row, col));
             }
-            InitializeField("");
             Score = 0;
-            foreach (var timer in timers) timer.Stop();
+            player = default(Point);
+            InitializeField("");
+
         }
         private void InitializeField(string recievedMap)
         {
@@ -164,10 +169,7 @@ namespace Mineswooper.Model
         }
         public void MoveCharacter(ref Point character, Directions direction)
         {
-            if (!isInitialized)
-            {
-                foreach (var timer in timers) timer.Start();
-            }
+
             GameTile destination = default(GameTile);
             Point charPosition = new Point(character.X, character.Y);
             switch (direction)
@@ -187,7 +189,15 @@ namespace Mineswooper.Model
             }
             if (destination != default(GameTile))
             {
-                if (destination.IsTraversable) character = new Point(destination.TilePosition.X, destination.TilePosition.Y);
+                if (destination.IsTraversable)
+                {
+                    character = new Point(destination.TilePosition.X, destination.TilePosition.Y);
+                    if (!isInitialized)
+                    {
+                        foreach (var timer in timers) timer.Start();
+                        isInitialized = true;
+                    }
+                }
             }
         }
         public void MovePlayer(Directions direction)
@@ -203,9 +213,18 @@ namespace Mineswooper.Model
                 }
             }
         }
-
+        public void CheckCollision(Point p)
+        {
+            if (p.X == player.X && p.Y == player.Y)
+            {
+                foreach (var t in timers) t.Stop();
+                NotifyPropertyChanged("Defeat");
+                ResetField();
+            }
+        }
         #endregion
-        public void ToggleTraversable(Point position)
+
+        public void ToggleTraversable(Point position)//can be used as a map editor
         {
             var cur = Tiles.FirstOrDefault(t => t.TilePosition.X == position.X && t.TilePosition.Y == position.Y);
             if (cur.IsTraversable) cur.IsTraversable = false;

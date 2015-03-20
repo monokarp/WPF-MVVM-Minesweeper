@@ -183,13 +183,11 @@ namespace Mineswooper.ViewModel
                 case "IsTraversable":
                     RaisePropertyChanged("IsTraversable");
                     break;
-                case "Victory":
+                case "Defeat":
                     PlayerScore.Score = field.Score;
                     PlayerScore.Date = DateTime.Now;
                     VictoryOpen = true;
                     IsUIEnabled = false;
-                    break;
-                case "Defeat":
                     break;
             }
         }
