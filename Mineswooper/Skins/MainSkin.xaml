@@ -104,7 +104,7 @@
     <Style x:Key="PacmanTile" TargetType="Rectangle">
         <Setter Property="OverridesDefaultStyle" Value="True"/>
         <Setter Property="Fill" Value="Black"/>
-        
+
         <Style.Triggers>
             <DataTrigger Binding="{Binding IsTraversable}" Value="False">
                 <Setter Property="Fill" Value="DarkBlue" />
@@ -120,6 +120,23 @@
             </DataTrigger>
         </Style.Triggers>
     </Style>
-
+    <Style x:Key="Character" TargetType="Label">
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="Width" Value="{Binding DataContext.CharacterSize,ElementName=GameField}"/>
+        <Setter Property="Height" Value="{Binding DataContext.CharacterSize,ElementName=GameField}"/>
+        <Setter Property="FontWeight" Value="ExtraBold"/>
+        <Setter Property="Background">
+            <Setter.Value>
+                <VisualBrush>
+                    <VisualBrush.Visual>
+                        <Ellipse Height="{Binding DataContext.CharacterSize,ElementName=GameField}"
+                                 Width="{Binding DataContext.CharacterSize,ElementName=GameField}"
+                                 Fill="Green" />
+                    </VisualBrush.Visual>
+                </VisualBrush>
+            </Setter.Value>
+        </Setter>
+    </Style>
 
 </ResourceDictionary>

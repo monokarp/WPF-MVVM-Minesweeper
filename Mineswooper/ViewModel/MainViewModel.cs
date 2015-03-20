@@ -10,9 +10,11 @@ using System.Linq;
 using System.Text;
 using System.Windows;
 using System.Windows.Data;
+using System.Windows.Input;
 
 namespace Mineswooper.ViewModel
 {
+    public enum Directions : int { Up = 1, Down = 2, Left = 3, Right = 4 };
     public class MainViewModel : ViewModelBase
     {
         #region Privates
@@ -48,6 +50,25 @@ namespace Mineswooper.ViewModel
             CloseRules = new RelayCommand(() => { RulesOpen = false; IsUIEnabled = true; });
             ShowScores = new RelayCommand(() => { ScoreOpen = true; IsUIEnabled = false; });
             CloseScores = new RelayCommand(() => { ScoreOpen = false; IsUIEnabled = true; });
+            MovePlayer = new RelayCommand<string>((e) =>
+            {
+                switch (e)
+                {
+                    case "Up":
+                        field.MovePlayer(Directions.Up);
+                        break;
+                    case "Down":
+                        field.MovePlayer(Directions.Down);
+                        break;
+                    case "Left":
+                        field.MovePlayer(Directions.Left);
+                        break;
+                    case "Right":
+                        field.MovePlayer(Directions.Right);
+                        break;
+                }
+                RaisePropertyChanged("Player");
+            });
             SaveScore = new RelayCommand(() =>
             {
                 var entry = new ScoreEntry { Name = PlayerScore.Name, Date = PlayerScore.Date, Score = PlayerScore.Score };
@@ -71,13 +92,13 @@ namespace Mineswooper.ViewModel
         }
         #region Relay commands
         public RelayCommand ShutdownCommand { get; set; }
-        public RelayCommand<Point> GameTileClick { get; set; }
         public RelayCommand FieldResetCommand { get; set; }
         public RelayCommand ShowRules { get; set; }
         public RelayCommand ShowScores { get; set; }
         public RelayCommand CloseRules { get; set; }
         public RelayCommand CloseScores { get; set; }
         public RelayCommand SaveScore { get; set; }
+        public RelayCommand<string> MovePlayer { get; set; }
         #endregion
         #region Public properties
         public ObservableCollection<ScoreEntry> ScoreEntries
@@ -130,8 +151,8 @@ namespace Mineswooper.ViewModel
                 RaisePropertyChanged("VictoryOpen");
             }
         }
-        public int FieldWidth { get { return cellSize * (int)field.Size.X ; } }
-        public int FieldHeight { get { return cellSize * (int)field.Size.Y ; } }
+        public int FieldWidth { get { return cellSize * (int)field.Size.X; } }
+        public int FieldHeight { get { return cellSize * (int)field.Size.Y; } }
         public ScoreEntry PlayerScore { get; set; }
         public string Rules { get { return gameRules; } }
         public static int CellSize { get { return cellSize; } }
@@ -139,9 +160,9 @@ namespace Mineswooper.ViewModel
         public static int PelletCenterPosition { get { return cellSize / 2 - pelletSize / 2; } }
         public static int CharacterSize { get { return characterSize; } }
         public static int CharacterCenterPosition { get { return cellSize / 2 - characterSize / 2; } }
-        public Point PlayerPosition { get { return new Point(field.Player.X, field.Player.Y); } }
-
+        public Point Player { get { return field.Player; } }
         public ObservableCollection<GameTile> Field { get { return field.Tiles; } }
+        public ObservableCollection<Point> Ghosts { get { return field.Ghosts; } }
         public int Rows { get { return (int)field.Size.Y; } }
         public int Cols { get { return (int)field.Size.X; } }
         public int Score { get { return field.Score; } }
@@ -150,6 +171,12 @@ namespace Mineswooper.ViewModel
         {
             switch (e.PropertyName)
             {
+                case "Score":
+                    RaisePropertyChanged("Score");
+                    break;
+                case "Player":
+                    RaisePropertyChanged("Player");
+                    break;
                 case "HasPellet":
                     RaisePropertyChanged("HasPellet");
                     break;

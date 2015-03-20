@@ -6,6 +6,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Threading;
+using Mineswooper.ViewModel;
 
 namespace Mineswooper.Model
 {
@@ -23,12 +24,13 @@ namespace Mineswooper.Model
         #endregion
 
         #region Privates
-        private enum AdjacentPositions : int { Prev = -1, Cur = 0, Next = 1 };
+        private static int ghostAmount = 5;
         private static string defaultMap = System.IO.File.ReadAllText(@"C:\Users\asus.pc\Desktop\job\task_projects\Mineswooper\Mineswooper\Model\defaultMap.txt");
         private bool isInitialized;
         private int currentScore;
         private Point player;
-        private DispatcherTimer timer;
+        private ObservableCollection<Point> ghosts;
+        private List<DispatcherTimer> timers;
         #endregion
 
         #region Public Properties
@@ -37,7 +39,7 @@ namespace Mineswooper.Model
         public Point Player
         {
             get { return player; }
-            private set
+            set
             {
                 if (value != player)
                 {
@@ -46,7 +48,18 @@ namespace Mineswooper.Model
                 }
             }
         }
-        public ObservableCollection<Point> Ghosts { get; private set; }
+        public ObservableCollection<Point> Ghosts
+        {
+            get { return ghosts; }
+            set
+            {
+                if (value != ghosts)
+                {
+                    ghosts = value;
+                    NotifyPropertyChanged("Ghosts");
+                }
+            }
+        }
         public int Score
         {
             get { return currentScore; }
@@ -64,13 +77,40 @@ namespace Mineswooper.Model
         #region Game field initializers
         public GameField(int cols, int rows)
         {
+            var rnd = new Random();
             Size = new Point(cols, rows);
+            timers = new List<DispatcherTimer>();
             Ghosts = new ObservableCollection<Point>();
             Player = default(Point);
-            timer = new DispatcherTimer();
-            timer.Interval = new TimeSpan(0, 0, 1);
-            timer.Tick += (s, e) => Score++;
+            var timer = new DispatcherTimer();
+            timer.Interval = new TimeSpan(0, 0, 0, 0, 300);
+            timer.Tick += (s, e) =>
+            {
+                for (int count = 0; count < Ghosts.Count; )
+                {
+                    var cur = ghosts[count];
+                    List<Directions> randomDirection = TraversibleDirections(cur);
+
+                    MoveCharacter(ref cur, randomDirection[rnd.Next(randomDirection.Count)]);
+                    ghosts[count] = cur;
+                    count++;
+                }
+            };
+            timers.Add(timer);
             ResetField();
+        }
+        public List<Directions> TraversibleDirections(Point p)
+        {
+            var result = new List<Directions>();
+            var up = Tiles.FirstOrDefault(t => t.TilePosition.X == p.X - 1 && t.TilePosition.Y == p.Y);
+            var down = Tiles.FirstOrDefault(t => t.TilePosition.X == p.X + 1 && t.TilePosition.Y == p.Y);
+            var left = Tiles.FirstOrDefault(t => t.TilePosition.X == p.X && t.TilePosition.Y == p.Y - 1);
+            var right = Tiles.FirstOrDefault(t => t.TilePosition.X == p.X && t.TilePosition.Y == p.Y + 1);
+            if (up != null && up.IsTraversable) result.Add(Directions.Up);
+            if (down != null && down.IsTraversable) result.Add(Directions.Down);
+            if (left != null && left.IsTraversable) result.Add(Directions.Left);
+            if (right != null && right.IsTraversable) result.Add(Directions.Right);
+            return result;
         }
         public void ResetField()
         {
@@ -83,11 +123,11 @@ namespace Mineswooper.Model
             }
             InitializeField("");
             Score = 0;
-            timer.Stop();
+            foreach (var timer in timers) timer.Stop();
         }
         private void InitializeField(string recievedMap)
         {
-            //there has to be some validation logic
+            //there has to be some map string validation logic
             Random rnd = new Random();
             Point randomPosition;
             GameTile randomTile;
@@ -106,8 +146,64 @@ namespace Mineswooper.Model
                     randomTile.HasPellet = false;
                 }
             }
-            isInitialized = true;
+            for (int ghosts = 0; ghosts < ghostAmount; )
+            {
+                randomPosition = new Point(rnd.Next(1, (int)Size.Y), rnd.Next(1, (int)Size.X));
+                randomTile = Tiles.FirstOrDefault(t => t.TilePosition.X == randomPosition.X && t.TilePosition.Y == randomPosition.Y);
+                var adjustedX = Math.Abs(randomPosition.X - Player.X);
+                var adjustedY = Math.Abs(randomPosition.Y - Player.Y);
+                if (adjustedX > 5 || adjustedY > 5)
+                {
+                    if (randomTile.IsTraversable)
+                    {
+                        Ghosts.Add(new Point(randomTile.TilePosition.X, randomTile.TilePosition.Y));
+                        ghosts++;
+                    }
+                }
+            }
         }
+        public void MoveCharacter(ref Point character, Directions direction)
+        {
+            if (!isInitialized)
+            {
+                foreach (var timer in timers) timer.Start();
+            }
+            GameTile destination = default(GameTile);
+            Point charPosition = new Point(character.X, character.Y);
+            switch (direction)
+            {
+                case Directions.Up:
+                    destination = Tiles.FirstOrDefault(t => t.TilePosition.X == charPosition.X - 1 && t.TilePosition.Y == charPosition.Y);
+                    break;
+                case Directions.Down:
+                    destination = Tiles.FirstOrDefault(t => t.TilePosition.X == charPosition.X + 1 && t.TilePosition.Y == charPosition.Y);
+                    break;
+                case Directions.Left:
+                    destination = Tiles.FirstOrDefault(t => t.TilePosition.X == charPosition.X && t.TilePosition.Y == charPosition.Y - 1);
+                    break;
+                case Directions.Right:
+                    destination = Tiles.FirstOrDefault(t => t.TilePosition.X == charPosition.X && t.TilePosition.Y == charPosition.Y + 1);
+                    break;
+            }
+            if (destination != default(GameTile))
+            {
+                if (destination.IsTraversable) character = new Point(destination.TilePosition.X, destination.TilePosition.Y);
+            }
+        }
+        public void MovePlayer(Directions direction)
+        {
+            MoveCharacter(ref player, direction);
+            var cur = Tiles.FirstOrDefault(t => t.TilePosition.X == player.X && t.TilePosition.Y == player.Y);
+            if (cur != default(GameTile))
+            {
+                if (cur.HasPellet)
+                {
+                    Score += 100;
+                    cur.HasPellet = false;
+                }
+            }
+        }
+
         #endregion
         public void ToggleTraversable(Point position)
         {

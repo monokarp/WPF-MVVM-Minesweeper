@@ -18,6 +18,12 @@
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Window.Resources>
+    <Window.InputBindings>
+        <KeyBinding Key="Up" Command="{Binding MovePlayer}" CommandParameter="Up"/>
+        <KeyBinding Key="Down" Command="{Binding MovePlayer}" CommandParameter="Down"/>
+        <KeyBinding Key="Left" Command="{Binding MovePlayer}" CommandParameter="Left"/>
+        <KeyBinding Key="Right" Command="{Binding MovePlayer}" CommandParameter="Right"/>
+    </Window.InputBindings>
     <Grid x:Name="LayoutRoot">
         <Menu IsMainMenu="True" Style="{StaticResource MainMenu}"  IsEnabled="{Binding IsUIEnabled}">
             <MenuItem Header="Game">
@@ -29,21 +35,17 @@
             </MenuItem>
         </Menu>
 
-        <StackPanel Orientation="Vertical">
-
+        <StackPanel Orientation="Vertical" IsEnabled="{Binding IsUIEnabled}">
             <Label Content="{Binding Score}" Style="{StaticResource ScoreLabel}" HorizontalAlignment="Right" HorizontalContentAlignment="Right"/>
             <Border BorderThickness="2" BorderBrush="White" CornerRadius="3" Width="{Binding FieldWidth}" Height="{Binding FieldHeight}">
                 <Canvas ClipToBounds="True">
-                    <ItemsControl x:Name="GameField" ItemsSource="{Binding Field}"  VerticalAlignment="Top" IsEnabled="{Binding IsUIEnabled}">
+                    <ItemsControl x:Name="GameField" ItemsSource="{Binding Field}"  VerticalAlignment="Top">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <Canvas>
                                     <Rectangle Style="{StaticResource PacmanTile}"
                                        Width="{Binding DataContext.CellSize,ElementName=GameField}"
                                        Height="{Binding DataContext.CellSize,ElementName=GameField}">
-                                        <Rectangle.InputBindings>
-                                            <MouseBinding MouseAction="LeftClick" Command="{Binding DataContext.GameTileClick,ElementName=GameField}" CommandParameter="{Binding Path=TilePosition}"/>
-                                        </Rectangle.InputBindings>
                                     </Rectangle>
                                     <Ellipse Style="{StaticResource PacmanPellet}"
                                          Width="{Binding DataContext.PelletSize,ElementName=GameField}"
@@ -69,13 +71,39 @@
                             </Style>
                         </ItemsControl.ItemContainerStyle>
                     </ItemsControl>
-                    <Label HorizontalContentAlignment="Center"
-                           VerticalContentAlignment="Center"
-                           FontWeight="ExtraBold"
-                           Height="{Binding CharacterSize}"
-                           Width="{Binding CharacterSize}"
-                           Canvas.Left="{Binding PlayerPosition.Y,Converter={StaticResource PlayerPositionConverter}}"
-                           Canvas.Top="{Binding PlayerPosition.X,Converter={StaticResource PlayerPositionConverter}}">
+                    <ItemsControl x:Name="Ghosts"
+                                  ItemsSource="{Binding Ghosts}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Label Style="{StaticResource Character}">
+                                    <Label.Background>
+                                        <VisualBrush>
+                                            <VisualBrush.Visual>
+                                                <Ellipse Height="{Binding DataContext.CharacterSize,ElementName=GameField}"
+                                                         Width="{Binding DataContext.CharacterSize,ElementName=GameField}"
+                                                         Fill="Red" />
+                                            </VisualBrush.Visual>
+                                        </VisualBrush>
+                                    </Label.Background>
+                                </Label>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <Canvas SnapsToDevicePixels="True" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemContainerStyle>
+                            <Style>
+                                <Setter Property="Canvas.Left" Value="{Binding Y,Converter={StaticResource PlayerPositionConverter}}" />
+                                <Setter Property="Canvas.Top" Value="{Binding X,Converter={StaticResource PlayerPositionConverter}}" />
+                            </Style>
+                        </ItemsControl.ItemContainerStyle>
+                    </ItemsControl>
+                    <Label x:Name="Player"  
+                           Style="{StaticResource Character}"
+                           Canvas.Left="{Binding Player.Y,Converter={StaticResource PlayerPositionConverter}, UpdateSourceTrigger=PropertyChanged}"
+                           Canvas.Top="{Binding Player.X,Converter={StaticResource PlayerPositionConverter}, UpdateSourceTrigger=PropertyChanged}">
                         <Label.Background>
                             <VisualBrush>
                                 <VisualBrush.Visual>
