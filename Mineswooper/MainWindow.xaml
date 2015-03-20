@@ -9,6 +9,7 @@
         Style="{DynamicResource MainWindow}"
         MouseLeftButtonDown="Window_MouseLeftButtonDown"
         DataContext="{Binding Main, Source={StaticResource Locator}}"
+        IsEnabled="{Binding IsUIEnabled}"
         >
 
     <Window.Resources>
@@ -35,7 +36,7 @@
             </MenuItem>
         </Menu>
 
-        <StackPanel Orientation="Vertical" IsEnabled="{Binding IsUIEnabled}">
+        <StackPanel Orientation="Vertical" >
             <Label Content="{Binding Score}" Style="{StaticResource ScoreLabel}" HorizontalAlignment="Right" HorizontalContentAlignment="Right"/>
             <Border BorderThickness="2" BorderBrush="White" CornerRadius="3" Width="{Binding FieldWidth}" Height="{Binding FieldHeight}">
                 <Canvas ClipToBounds="True">

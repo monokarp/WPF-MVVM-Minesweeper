@@ -45,7 +45,7 @@ namespace Mineswooper.ViewModel
                 Application.Current.Shutdown();
             });
             //GameTileClick = new RelayCommand<Point>((p) => { field.ToggleTraversable(p); });
-            FieldResetCommand = new RelayCommand(() => { field.ResetField(); });
+            FieldResetCommand = new RelayCommand(() => { field.ResetField(); field.InitializeField(""); });
             ShowRules = new RelayCommand(() => { RulesOpen = true; IsUIEnabled = false; });
             CloseRules = new RelayCommand(() => { RulesOpen = false; IsUIEnabled = true; });
             ShowScores = new RelayCommand(() => { ScoreOpen = true; IsUIEnabled = false; });
@@ -82,6 +82,8 @@ namespace Mineswooper.ViewModel
                 }
                 VictoryOpen = false;
                 IsUIEnabled = true;
+                field.ResetField();
+                field.InitializeField("");
             });
             field.PropertyChanged += GameFieldEvent;
             using (var dc = new ScoreContext())

@@ -30,7 +30,7 @@ namespace Mineswooper.Model
         private int currentScore;
         private Point player;
         private ObservableCollection<Point> ghosts;
-        private List<DispatcherTimer> timers;
+        private DispatcherTimer timer;
         #endregion
 
         #region Public Properties
@@ -79,10 +79,8 @@ namespace Mineswooper.Model
         {
 
             Size = new Point(cols, rows);
-            timers = new List<DispatcherTimer>();
-            Ghosts = new ObservableCollection<Point>();
-            Player = default(Point);
             ResetField();
+            InitializeField("");
         }
         public List<Directions> TraversibleDirections(Point p)
         {
@@ -100,37 +98,23 @@ namespace Mineswooper.Model
         public void ResetField()
         {
             var rnd = new Random();
+            isInitialized = false;
+            Score = 0;
+            Player = default(Point);
+
             if (Tiles != null) Tiles.Clear();
             else Tiles = new ObservableCollection<GameTile>();
-            if (ghosts != null) ghosts.Clear();
-            else ghosts = new ObservableCollection<Point>();
-            if (timers != null) timers.Clear();
-            else timers = new List<DispatcherTimer>();
-            isInitialized = false;
-            var timer = new DispatcherTimer();
-            timer.Interval = new TimeSpan(0, 0, 0, 0, 300);
-            timer.Tick += (s, e) =>
-            {
-                for (int count = Ghosts.Count; count-- > 0; )
-                {
-                    var cur = ghosts[count];
-                    List<Directions> randomDirection = TraversibleDirections(cur);
-                    MoveCharacter(ref cur, randomDirection[rnd.Next(randomDirection.Count)]);
-                    CheckCollision(cur);
-                    ghosts[count] = cur;
-                }
-            };
-            timers.Add(timer);
+            if (Ghosts != null) Ghosts.Clear();
+            else Ghosts = new ObservableCollection<Point>();
+            timer = new DispatcherTimer();
+
             for (int row = 1; row <= Size.Y; row++)
             {
                 for (int col = 1; col <= Size.X; col++) Tiles.Add(new GameTile(row, col));
             }
-            Score = 0;
-            player = default(Point);
-            InitializeField("");
 
         }
-        private void InitializeField(string recievedMap)
+        public void InitializeField(string recievedMap)
         {
             //there has to be some map string validation logic
             Random rnd = new Random();
@@ -166,6 +150,18 @@ namespace Mineswooper.Model
                     }
                 }
             }
+            timer.Interval = new TimeSpan(0, 0, 0, 0, 300);
+            timer.Tick += (s, e) =>
+            {
+                for (int count = Ghosts.Count; count-- > 0; )
+                {
+                    var cur = Ghosts[count];
+                    List<Directions> randomDirection = TraversibleDirections(cur);
+                    MoveCharacter(ref cur, randomDirection[rnd.Next(randomDirection.Count)]);
+                    if (CheckCollision(cur)) break;
+                    Ghosts[count] = cur;
+                }
+            };
         }
         public void MoveCharacter(ref Point character, Directions direction)
         {
@@ -194,7 +190,7 @@ namespace Mineswooper.Model
                     character = new Point(destination.TilePosition.X, destination.TilePosition.Y);
                     if (!isInitialized)
                     {
-                        foreach (var timer in timers) timer.Start();
+                        timer.Start();
                         isInitialized = true;
                     }
                 }
@@ -213,14 +209,16 @@ namespace Mineswooper.Model
                 }
             }
         }
-        public void CheckCollision(Point p)
+        public bool CheckCollision(Point p)
         {
             if (p.X == player.X && p.Y == player.Y)
             {
-                foreach (var t in timers) t.Stop();
+                timer.Stop();
+                timer.IsEnabled = false;
                 NotifyPropertyChanged("Defeat");
-                ResetField();
+                return true;
             }
+            return false;
         }
         #endregion
 
