@@ -26,18 +26,18 @@
         <KeyBinding Key="Right" Command="{Binding MovePlayer}" CommandParameter="Right"/>
     </Window.InputBindings>
     <Grid x:Name="LayoutRoot">
-        <Menu IsMainMenu="True" Style="{StaticResource MainMenu}"  IsEnabled="{Binding IsUIEnabled}">
-            <MenuItem Header="Game">
-                <MenuItem Header="New" Command="{Binding FieldResetCommand}"/>
-                <MenuItem Header="Rules" Command="{Binding ShowRules}"/>
-                <MenuItem Header="Hall of fame" Command="{Binding ShowScores}"/>
-                <Separator/>
-                <MenuItem Header="Exit" Command="{Binding ShutdownCommand}"/>
+        <Menu IsMainMenu="True" IsEnabled="{Binding IsUIEnabled}" Style="{DynamicResource MenuStyle}">
+            <MenuItem Header="Game" Style="{DynamicResource MenuItemStyle}" >
+                <MenuItem  Header="New"  Command="{Binding FieldResetCommand}"/>
+                <MenuItem  Header="Rules"  Command="{Binding ShowRules}"/>
+                <MenuItem  Header="Hall of fame" Command="{Binding ShowScores}"/>
+                <Separator Style="{DynamicResource SeparatorStyle}"/>
+                <MenuItem  Header="Exit"  Command="{Binding ShutdownCommand}"/>
             </MenuItem>
         </Menu>
 
         <StackPanel Orientation="Vertical" >
-            <Label Content="{Binding Score}" Style="{StaticResource ScoreLabel}" HorizontalAlignment="Right" HorizontalContentAlignment="Right"/>
+            <Label Content="{Binding Score}" Style="{StaticResource ScoreLabel}" HorizontalAlignment="Right" HorizontalContentAlignment="Right" Template="{DynamicResource ScoreLabelStyle}"/>
             <Border BorderThickness="2" BorderBrush="White" CornerRadius="3" Width="{Binding FieldWidth}" Height="{Binding FieldHeight}">
                 <Canvas ClipToBounds="True">
                     <ItemsControl x:Name="GameField" ItemsSource="{Binding Field}"  VerticalAlignment="Top">
@@ -76,13 +76,15 @@
                                   ItemsSource="{Binding Ghosts}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Label Style="{StaticResource Character}">
+                                <Label Style="{StaticResource Character}"
+                                       Content=">:^(">
                                     <Label.Background>
                                         <VisualBrush>
                                             <VisualBrush.Visual>
                                                 <Ellipse Height="{Binding DataContext.CharacterSize,ElementName=GameField}"
                                                          Width="{Binding DataContext.CharacterSize,ElementName=GameField}"
-                                                         Fill="Red" />
+                                                         Fill="Orange"
+                                                         />
                                             </VisualBrush.Visual>
                                         </VisualBrush>
                                     </Label.Background>
@@ -110,7 +112,7 @@
                                 <VisualBrush.Visual>
                                     <Ellipse Height="{Binding CharacterSize}"
                                              Width="{Binding CharacterSize}"
-                                             Fill="Green" />
+                                             Fill="White" />
                                 </VisualBrush.Visual>
                             </VisualBrush>
                         </Label.Background>
@@ -121,12 +123,13 @@
         </StackPanel>
 
 
-        <Popup Name="RulesPopup"  Style="{StaticResource MessagePopup}" IsOpen="{Binding RulesOpen}" >
+        <Popup Name="RulesPopup"  Style="{StaticResource MessagePopup}" IsOpen="{Binding RulesOpen}">
             <StackPanel >
                 <Label>
                     <TextBlock Text="{Binding Rules}"/>
                 </Label>
-                <Button Content="Got it!"
+                <Button Style="{StaticResource PopupButton}"
+                        Content="Got it!"
                         Command="{Binding CloseRules}"/>
             </StackPanel>
         </Popup>
@@ -135,11 +138,12 @@
             <StackPanel>
                 <Label>
                     <StackPanel Orientation="Vertical">
-                        <TextBlock Text="Congratulations! You have secured the field! Input the name under which your deeds of valor will be forever remembered:"/>
-                        <TextBox Text="{Binding Path=PlayerScore.Name}" Background="White"/>
+                        <TextBlock Text="Congratulations, you died like a bitch! Input the name under which your deeds of valor will be forever remembered:"/>
+                        <TextBox Text="{Binding Path=PlayerScore.Name}" Background="Black" Foreground="Green" BorderBrush="Black" Style="{DynamicResource ScoreNameTextBoxStyle}"/>
                     </StackPanel>
                 </Label>
-                <Button Content="OK"
+                <Button Style="{StaticResource PopupButton}"
+                        Content="OK"
                         Command="{Binding SaveScore}"/>
             </StackPanel>
         </Popup>
@@ -147,32 +151,34 @@
         <Popup Name="ScorePopup" IsOpen="{Binding ScoreOpen}" Style="{StaticResource MessagePopup}">
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                 <Label>
-                    <ScrollViewer HorizontalAlignment="Center" VerticalAlignment="Top" MaxHeight="200" MaxWidth="400">
+                    <ScrollViewer HorizontalAlignment="Center" VerticalAlignment="Top" MaxHeight="200" MaxWidth="400" Template="{DynamicResource ScoresScrollViewer}">
                         <ItemsControl ItemsSource="{Binding ScoreEntries,UpdateSourceTrigger=PropertyChanged}" AlternationCount="2" ScrollViewer.CanContentScroll="True">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <StackPanel x:Name="Main" >
-                                        <StackPanel Orientation="Horizontal">
-                                            <TextBlock Text="Name:" Style="{StaticResource ScoreTag}"/>
-                                            <TextBlock Text="{Binding Name}" Padding="0,0,0,10"/>
-                                        </StackPanel>
-                                        <StackPanel Orientation="Horizontal" Margin="5">
+                                    <Border x:Name="Main" BorderThickness="2" CornerRadius="2" Margin="5">
+                                        <StackPanel>
                                             <StackPanel Orientation="Horizontal">
-                                                <TextBlock Text="Score:" Style="{StaticResource ScoreTag}"/>
-                                                <TextBlock Text="{Binding Score}" Padding="0,0,0,10"/>
+                                                <TextBlock Text="Name:" Style="{StaticResource ScoreTag}"/>
+                                                <TextBlock Text="{Binding Name}" Padding="0,0,0,10"/>
                                             </StackPanel>
-                                            <StackPanel Orientation="Horizontal">
-                                                <TextBlock Text="Date:" Style="{StaticResource ScoreTag}"/>
-                                                <TextBlock Text="{Binding Date}" Padding="0,0,0,10"/>
+                                            <StackPanel Orientation="Horizontal" Margin="5">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Text="Score:" Style="{StaticResource ScoreTag}"/>
+                                                    <TextBlock Text="{Binding Score}" Padding="0,0,0,10"/>
+                                                </StackPanel>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Text="Date:" Style="{StaticResource ScoreTag}"/>
+                                                    <TextBlock Text="{Binding Date}" Padding="0,0,0,10"/>
+                                                </StackPanel>
                                             </StackPanel>
                                         </StackPanel>
-                                    </StackPanel>
+                                    </Border>
                                     <DataTemplate.Triggers>
                                         <Trigger Property="ItemsControl.AlternationIndex" Value="0">
-                                            <Setter TargetName="Main" Property="Background" Value="LightGray" />
+                                            <Setter TargetName="Main" Property="BorderBrush" Value="Green" />
                                         </Trigger>
                                         <Trigger Property="ItemsControl.AlternationIndex" Value="1">
-                                            <Setter TargetName="Main" Property="Background" Value="White" />
+                                            <Setter TargetName="Main" Property="BorderBrush" Value="black" />
                                         </Trigger>
                                     </DataTemplate.Triggers>
                                 </DataTemplate>
@@ -180,7 +186,7 @@
                         </ItemsControl>
                     </ScrollViewer>
                 </Label>
-                <Button Content="Fighting!" Command="{Binding CloseScores}"/>
+                <Button Style="{StaticResource PopupButton}"  Content="Fighting!" Command="{Binding CloseScores}"/>
             </StackPanel>
         </Popup>
 

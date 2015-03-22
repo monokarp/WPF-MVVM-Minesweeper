@@ -116,7 +116,7 @@ namespace Mineswooper.Model
         }
         public void InitializeField(string recievedMap)
         {
-            //there has to be some map string validation logic
+            //there has to be some map string validation logic here when theres a map choice option
             Random rnd = new Random();
             Point randomPosition;
             GameTile randomTile;
@@ -199,6 +199,8 @@ namespace Mineswooper.Model
         public void MovePlayer(Directions direction)
         {
             MoveCharacter(ref player, direction);
+            foreach (var g in ghosts)
+                CheckCollision(g);
             var cur = Tiles.FirstOrDefault(t => t.TilePosition.X == player.X && t.TilePosition.Y == player.Y);
             if (cur != default(GameTile))
             {

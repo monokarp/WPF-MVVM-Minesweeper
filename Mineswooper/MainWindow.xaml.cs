@@ -1,9 +1,6 @@
-﻿using System.Windows;
-using Mineswooper.ViewModel;
+﻿using Mineswooper.ViewModel;
+using System.Windows;
 using System.Windows.Input;
-using System.Windows.Data;
-using System;
-using System.Globalization;
 
 namespace Mineswooper
 {
@@ -23,7 +20,7 @@ namespace Mineswooper
         }
         private void Window_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            this.DragMove();
+            if (this.IsEnabled) this.DragMove();
         }
     }
 }
