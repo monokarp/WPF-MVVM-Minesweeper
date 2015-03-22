@@ -18,6 +18,7 @@ namespace Mineswooper.ViewModel
     {
         #region Privates
         private ObservableCollection<ScoreEntry> scores;
+        private string gameOverMsg;
         private static int cellSize = 40;
         private static int pelletSize = cellSize / 5;
         public static int characterSize = cellSize * 3 / 4;
@@ -90,6 +91,7 @@ namespace Mineswooper.ViewModel
         public RelayCommand<string> MovePlayer { get; set; }
         #endregion
         #region Public properties
+        public string GameOverMessage { get { return gameOverMsg; } }
         public ObservableCollection<ScoreEntry> ScoreEntries
         {
             get { return scores; }
@@ -186,6 +188,16 @@ namespace Mineswooper.ViewModel
                 case "Defeat":
                     PlayerScore.Score = field.Score;
                     PlayerScore.Date = DateTime.Now;
+                    gameOverMsg = "Congratulations, you died like a bitch! Input the name under which your acts of cowardice will be forever frowned upon:";
+                    RaisePropertyChanged("GameOverMessage");
+                    VictoryOpen = true;
+                    IsUIEnabled = false;
+                    break;
+                case "Victory":
+                    PlayerScore.Score = field.Score;
+                    PlayerScore.Date = DateTime.Now;
+                    gameOverMsg = "Congratulations, you made it! Input the name under which your deeds of valor will be forever remembered:";
+                    RaisePropertyChanged("GameOverMessage");
                     VictoryOpen = true;
                     IsUIEnabled = false;
                     break;

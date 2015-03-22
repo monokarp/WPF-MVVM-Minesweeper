@@ -207,6 +207,12 @@ namespace Mineswooper.Model
                     cur.HasPellet = false;
                 }
             }
+            if (Tiles.Count(t => t.HasPellet) == 0)
+            {
+                timer.Stop();
+                timer.IsEnabled = false;
+                NotifyPropertyChanged("Victory");
+            }
         }
         public bool CheckCollision(Point p)
         {

@@ -138,7 +138,7 @@
             <StackPanel>
                 <Label>
                     <StackPanel Orientation="Vertical">
-                        <TextBlock Text="Congratulations, you died like a bitch! Input the name under which your deeds of valor will be forever remembered:"/>
+                        <TextBlock Text="{Binding GameOverMessage}"/>
                         <TextBox Text="{Binding Path=PlayerScore.Name}" Background="Black" Foreground="Green" BorderBrush="Black" Style="{DynamicResource ScoreNameTextBoxStyle}"/>
                     </StackPanel>
                 </Label>
