@@ -7,6 +7,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
+using System.Text;
 using System.Windows;
 using System.Windows.Data;
 
@@ -30,19 +31,7 @@ namespace Mineswooper.ViewModel
         public MainViewModel()
         {
             PlayerScore = new ScoreEntry { Name = "Anonymous", Score = 0 };
-            ShutdownCommand = new RelayCommand(() =>
-            {
-                //StringBuilder map = new StringBuilder();
-                //foreach (var tile in field.Tiles)
-                //{
-                //    if (tile.IsTraversable) map.Append("T");
-                //    else map.Append("W");
-                //}
-                //string strMap = map.ToString();
-                //System.IO.File.WriteAllText(@"C:\Users\asus.pc\Desktop\job\task_projects\Mineswooper\Mineswooper\Model\defaultMap.txt", strMap);
-                Application.Current.Shutdown();
-            });
-            //GameTileClick = new RelayCommand<Point>((p) => { field.ToggleTraversable(p); });
+            ShutdownCommand = new RelayCommand(() => { Application.Current.Shutdown(); });
             FieldResetCommand = new RelayCommand(() => { field.ResetField(); field.InitializeField(""); });
             ShowRules = new RelayCommand(() => { RulesOpen = true; IsUIEnabled = false; });
             CloseRules = new RelayCommand(() => { RulesOpen = false; IsUIEnabled = true; });
@@ -83,10 +72,10 @@ namespace Mineswooper.ViewModel
                 field.ResetField();
                 field.InitializeField("");
             });
-            field.PropertyChanged += GameFieldEvent;
+            field.PropertyChanged += GameFieldEventHandler;
             using (var dc = new ScoreContext())
             {
-                scores = new ObservableCollection<ScoreEntry>(dc.ScoreEntries.Select(e => e).OrderBy(e => e.Score).ToList());
+                scores = new ObservableCollection<ScoreEntry>(dc.ScoreEntries.Select(e => e).OrderByDescending(e => e.Score).ToList());
             }
 
         }
@@ -167,7 +156,18 @@ namespace Mineswooper.ViewModel
         public int Cols { get { return (int)field.Size.X; } }
         public int Score { get { return field.Score; } }
         #endregion
-        private void GameFieldEvent(object sender, PropertyChangedEventArgs e)
+        private void SaveCurrentMap()//map editing not being used currently
+        {
+            StringBuilder map = new StringBuilder();
+            foreach (var tile in field.Tiles)
+            {
+                if (tile.IsTraversable) map.Append("T");
+                else map.Append("W");
+            }
+            string strMap = map.ToString();
+            System.IO.File.WriteAllText(@"C:\Users\asus.pc\Desktop\job\task_projects\Mineswooper\Mineswooper\Model\defaultMap.txt", strMap);
+        }
+        private void GameFieldEventHandler(object sender, PropertyChangedEventArgs e)
         {
             switch (e.PropertyName)
             {
@@ -191,9 +191,8 @@ namespace Mineswooper.ViewModel
                     break;
             }
         }
-
     }
-    #region Converters
+    #region Value converters
     public class CoordinateToCanvasPositionConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Mineswooper.ViewModel;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -6,7 +7,6 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Threading;
-using Mineswooper.ViewModel;
 
 namespace Mineswooper.Model
 {
@@ -22,17 +22,15 @@ namespace Mineswooper.Model
             }
         }
         #endregion
-
         #region Privates
         private static int ghostAmount = 5;
         private static string defaultMap = System.IO.File.ReadAllText(@"C:\Users\asus.pc\Desktop\job\task_projects\Mineswooper\Mineswooper\Model\defaultMap.txt");
         private bool isInitialized;
-        private int currentScore;
+        private int score;
         private Point player;
         private ObservableCollection<Point> ghosts;
         private DispatcherTimer timer;
         #endregion
-
         #region Public Properties
         public Point Size { get; set; }
         public ObservableCollection<GameTile> Tiles { get; set; }
@@ -62,40 +60,25 @@ namespace Mineswooper.Model
         }
         public int Score
         {
-            get { return currentScore; }
+            get { return score; }
             private set
             {
-                if (value != currentScore)
+                if (value != score)
                 {
-                    currentScore = value;
+                    score = value;
                     NotifyPropertyChanged("Score");
                 }
             }
         }
         #endregion
-
         #region Game field initializers
         public GameField(int cols, int rows)
         {
-
             Size = new Point(cols, rows);
             ResetField();
             InitializeField("");
         }
-        public List<Directions> TraversibleDirections(Point p)
-        {
-            var result = new List<Directions>();
-            var up = Tiles.FirstOrDefault(t => t.TilePosition.X == p.X - 1 && t.TilePosition.Y == p.Y);
-            var down = Tiles.FirstOrDefault(t => t.TilePosition.X == p.X + 1 && t.TilePosition.Y == p.Y);
-            var left = Tiles.FirstOrDefault(t => t.TilePosition.X == p.X && t.TilePosition.Y == p.Y - 1);
-            var right = Tiles.FirstOrDefault(t => t.TilePosition.X == p.X && t.TilePosition.Y == p.Y + 1);
-            if (up != null && up.IsTraversable) result.Add(Directions.Up);
-            if (down != null && down.IsTraversable) result.Add(Directions.Down);
-            if (left != null && left.IsTraversable) result.Add(Directions.Left);
-            if (right != null && right.IsTraversable) result.Add(Directions.Right);
-            return result;
-        }
-        public void ResetField()
+        public void ResetField()//sets the gamefield to the clear state with no game objects on
         {
             var rnd = new Random();
             isInitialized = false;
@@ -112,11 +95,10 @@ namespace Mineswooper.Model
             {
                 for (int col = 1; col <= Size.X; col++) Tiles.Add(new GameTile(row, col));
             }
-
         }
-        public void InitializeField(string recievedMap)
+        public void InitializeField(string recievedMap)//sets the reset gamefield to the ready state with all game objects on
         {
-            //there has to be some map string validation logic here when theres a map choice option
+            //there has to be some map string validation logic here in case theres a map choice option
             Random rnd = new Random();
             Point randomPosition;
             GameTile randomTile;
@@ -151,7 +133,7 @@ namespace Mineswooper.Model
                 }
             }
             timer.Interval = new TimeSpan(0, 0, 0, 0, 300);
-            timer.Tick += (s, e) =>
+            timer.Tick += (s, e) =>                                                 //ghost movement
             {
                 for (int count = Ghosts.Count; count-- > 0; )
                 {
@@ -163,9 +145,25 @@ namespace Mineswooper.Model
                 }
             };
         }
-        public void MoveCharacter(ref Point character, Directions direction)
+        #endregion
+        #region Game field logic
+        public List<Directions> TraversibleDirections(Point p)//checks which directions are traversible from the specified point
         {
+            var result = new List<Directions>();
+            var up = Tiles.FirstOrDefault(t => t.TilePosition.X == p.X - 1 && t.TilePosition.Y == p.Y);
+            var down = Tiles.FirstOrDefault(t => t.TilePosition.X == p.X + 1 && t.TilePosition.Y == p.Y);
+            var left = Tiles.FirstOrDefault(t => t.TilePosition.X == p.X && t.TilePosition.Y == p.Y - 1);
+            var right = Tiles.FirstOrDefault(t => t.TilePosition.X == p.X && t.TilePosition.Y == p.Y + 1);
 
+            if (up != null && up.IsTraversable) result.Add(Directions.Up);
+            if (down != null && down.IsTraversable) result.Add(Directions.Down);
+            if (left != null && left.IsTraversable) result.Add(Directions.Left);
+            if (right != null && right.IsTraversable) result.Add(Directions.Right);
+
+            return result;
+        }
+        public void MoveCharacter(ref Point character, Directions direction)//checks if the destination is traversible
+        {
             GameTile destination = default(GameTile);
             Point charPosition = new Point(character.X, character.Y);
             switch (direction)
@@ -199,8 +197,7 @@ namespace Mineswooper.Model
         public void MovePlayer(Directions direction)
         {
             MoveCharacter(ref player, direction);
-            foreach (var g in ghosts)
-                CheckCollision(g);
+            foreach (var g in ghosts) CheckCollision(g);
             var cur = Tiles.FirstOrDefault(t => t.TilePosition.X == player.X && t.TilePosition.Y == player.Y);
             if (cur != default(GameTile))
             {
@@ -222,14 +219,13 @@ namespace Mineswooper.Model
             }
             return false;
         }
-        #endregion
 
-        public void ToggleTraversable(Point position)//can be used as a map editor
+        public void ToggleTraversable(Point position)//map editing not being used currently
         {
             var cur = Tiles.FirstOrDefault(t => t.TilePosition.X == position.X && t.TilePosition.Y == position.Y);
             if (cur.IsTraversable) cur.IsTraversable = false;
             else cur.IsTraversable = true;
         }
-
+        #endregion
     }
 }

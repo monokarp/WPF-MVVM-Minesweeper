@@ -77,7 +77,7 @@
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <Label Style="{StaticResource Character}"
-                                       Content=">:^(">
+                                       Content="!">
                                     <Label.Background>
                                         <VisualBrush>
                                             <VisualBrush.Visual>
@@ -112,7 +112,7 @@
                                 <VisualBrush.Visual>
                                     <Ellipse Height="{Binding CharacterSize}"
                                              Width="{Binding CharacterSize}"
-                                             Fill="White" />
+                                             Fill="Green" />
                                 </VisualBrush.Visual>
                             </VisualBrush>
                         </Label.Background>

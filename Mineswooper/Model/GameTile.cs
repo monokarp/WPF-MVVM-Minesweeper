@@ -23,7 +23,6 @@ namespace Mineswooper.Model
         #endregion
         #region Public properties
         public Point TilePosition { get; set; }
-       
         public bool IsTraversable
         {
             get { return isTraversable; }
@@ -47,8 +46,5 @@ namespace Mineswooper.Model
         {
             TilePosition = new Point(a, b);
         }
-        #region Tile methods
-     
-        #endregion
     }
 }
