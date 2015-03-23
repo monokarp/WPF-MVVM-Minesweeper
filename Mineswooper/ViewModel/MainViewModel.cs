@@ -188,7 +188,7 @@ namespace Mineswooper.ViewModel
                 case "Defeat":
                     PlayerScore.Score = field.Score;
                     PlayerScore.Date = DateTime.Now;
-                    gameOverMsg = "Congratulations, you died like a bitch! Input the name under which your acts of cowardice will be forever frowned upon:";
+                    gameOverMsg = "Congratulations, you died! Input the name under which your acts of cowardice will be forever frowned upon:";
                     RaisePropertyChanged("GameOverMessage");
                     VictoryOpen = true;
                     IsUIEnabled = false;

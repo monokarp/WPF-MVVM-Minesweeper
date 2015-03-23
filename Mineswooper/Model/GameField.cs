@@ -105,7 +105,11 @@ namespace Mineswooper.Model
             char[] map = defaultMap.ToCharArray();
             for (int count = 0; count < map.Length; count++)
             {
-                if (map[count] == 'T') { Tiles[count].IsTraversable = true; Tiles[count].HasPellet = true; }
+                if (map[count] == 'T')
+                {
+                    Tiles[count].IsTraversable = true;
+                    Tiles[count].HasPellet = true;
+                }
             }
             while (Player == default(Point))
             {
@@ -121,9 +125,9 @@ namespace Mineswooper.Model
             {
                 randomPosition = new Point(rnd.Next(1, (int)Size.Y), rnd.Next(1, (int)Size.X));
                 randomTile = Tiles.FirstOrDefault(t => t.TilePosition.X == randomPosition.X && t.TilePosition.Y == randomPosition.Y);
-                var adjustedX = Math.Abs(randomPosition.X - Player.X);
-                var adjustedY = Math.Abs(randomPosition.Y - Player.Y);
-                if (adjustedX > 5 || adjustedY > 5)
+                var randomRow = Math.Abs(randomPosition.X - Player.X);
+                var randomCol = Math.Abs(randomPosition.Y - Player.Y);
+                if (randomRow > 5 || randomCol > 5)                                 //atleast 5 tiles away from the player position
                 {
                     if (randomTile.IsTraversable)
                     {
@@ -149,36 +153,36 @@ namespace Mineswooper.Model
         #region Game field logic
         public List<Directions> TraversibleDirections(Point p)//checks which directions are traversible from the specified point
         {
-            var result = new List<Directions>();
+            var traversibleDirections = new List<Directions>();
             var up = Tiles.FirstOrDefault(t => t.TilePosition.X == p.X - 1 && t.TilePosition.Y == p.Y);
             var down = Tiles.FirstOrDefault(t => t.TilePosition.X == p.X + 1 && t.TilePosition.Y == p.Y);
             var left = Tiles.FirstOrDefault(t => t.TilePosition.X == p.X && t.TilePosition.Y == p.Y - 1);
             var right = Tiles.FirstOrDefault(t => t.TilePosition.X == p.X && t.TilePosition.Y == p.Y + 1);
 
-            if (up != null && up.IsTraversable) result.Add(Directions.Up);
-            if (down != null && down.IsTraversable) result.Add(Directions.Down);
-            if (left != null && left.IsTraversable) result.Add(Directions.Left);
-            if (right != null && right.IsTraversable) result.Add(Directions.Right);
+            if (up != null && up.IsTraversable) traversibleDirections.Add(Directions.Up);
+            if (down != null && down.IsTraversable) traversibleDirections.Add(Directions.Down);
+            if (left != null && left.IsTraversable) traversibleDirections.Add(Directions.Left);
+            if (right != null && right.IsTraversable) traversibleDirections.Add(Directions.Right);
 
-            return result;
+            return traversibleDirections;
         }
         public void MoveCharacter(ref Point character, Directions direction)//checks if the destination is traversible
         {
             GameTile destination = default(GameTile);
-            Point charPosition = new Point(character.X, character.Y);
+            Point characterPosition = new Point(character.X, character.Y);
             switch (direction)
             {
                 case Directions.Up:
-                    destination = Tiles.FirstOrDefault(t => t.TilePosition.X == charPosition.X - 1 && t.TilePosition.Y == charPosition.Y);
+                    destination = Tiles.FirstOrDefault(t => t.TilePosition.X == characterPosition.X - 1 && t.TilePosition.Y == characterPosition.Y);
                     break;
                 case Directions.Down:
-                    destination = Tiles.FirstOrDefault(t => t.TilePosition.X == charPosition.X + 1 && t.TilePosition.Y == charPosition.Y);
+                    destination = Tiles.FirstOrDefault(t => t.TilePosition.X == characterPosition.X + 1 && t.TilePosition.Y == characterPosition.Y);
                     break;
                 case Directions.Left:
-                    destination = Tiles.FirstOrDefault(t => t.TilePosition.X == charPosition.X && t.TilePosition.Y == charPosition.Y - 1);
+                    destination = Tiles.FirstOrDefault(t => t.TilePosition.X == characterPosition.X && t.TilePosition.Y == characterPosition.Y - 1);
                     break;
                 case Directions.Right:
-                    destination = Tiles.FirstOrDefault(t => t.TilePosition.X == charPosition.X && t.TilePosition.Y == charPosition.Y + 1);
+                    destination = Tiles.FirstOrDefault(t => t.TilePosition.X == characterPosition.X && t.TilePosition.Y == characterPosition.Y + 1);
                     break;
             }
             if (destination != default(GameTile))
@@ -198,13 +202,13 @@ namespace Mineswooper.Model
         {
             MoveCharacter(ref player, direction);
             foreach (var g in ghosts) CheckCollision(g);
-            var cur = Tiles.FirstOrDefault(t => t.TilePosition.X == player.X && t.TilePosition.Y == player.Y);
-            if (cur != default(GameTile))
+            var currentTile = Tiles.FirstOrDefault(t => t.TilePosition.X == player.X && t.TilePosition.Y == player.Y);
+            if (currentTile != default(GameTile))
             {
-                if (cur.HasPellet)
+                if (currentTile.HasPellet)
                 {
                     Score += 100;
-                    cur.HasPellet = false;
+                    currentTile.HasPellet = false;
                 }
             }
             if (Tiles.Count(t => t.HasPellet) == 0)
