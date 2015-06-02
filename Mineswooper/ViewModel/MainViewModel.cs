@@ -167,7 +167,7 @@ namespace Mineswooper.ViewModel
                 else map.Append("W");
             }
             string strMap = map.ToString();
-            System.IO.File.WriteAllText(@"C:\Users\asus.pc\Desktop\job\task_projects\Mineswooper\Mineswooper\Model\defaultMap.txt", strMap);
+            System.IO.File.WriteAllText(@"Model\defaultMap.txt", strMap);
         }
         private void GameFieldEventHandler(object sender, PropertyChangedEventArgs e)
         {

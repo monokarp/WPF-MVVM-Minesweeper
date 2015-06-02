@@ -136,7 +136,9 @@
     <Resource Include="Skins\face.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Model\defaultMap.txt" />
+    <EmbeddedResource Include="Model\defaultMap.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Skins\pellet.png" />

@@ -17,7 +17,7 @@ namespace Mineswooper
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
-            Database.SetInitializer(new ScoreInitializer());
+            //Database.SetInitializer(new ScoreInitializer());
         }
     }
 }

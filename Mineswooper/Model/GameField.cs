@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows;
@@ -24,7 +25,7 @@ namespace Mineswooper.Model
         #endregion
         #region Privates
         private static int ghostAmount = 5;
-        private static string defaultMap = System.IO.File.ReadAllText(@"C:\Users\asus.pc\Desktop\job\task_projects\Mineswooper\Mineswooper\Model\defaultMap.txt");
+        private static string defaultMap = System.IO.File.ReadAllText(Path.Combine(Environment.CurrentDirectory, "Model/defaultMap.txt"));
         private bool isInitialized;
         private int score;
         private Point player;
